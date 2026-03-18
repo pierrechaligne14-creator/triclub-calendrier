@@ -157,7 +157,9 @@ function getCourses(date){return S.courses.filter(c=>sameDay(new Date(c.date),da
 function openDetail(id){
   S.view='detail';S.editMode=false;
   S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===id)));
-  S.newPseudo='';S.newFmts=[];
+  S.newPseudo='';
+  const courseFormats=S.courses.find(c=>c.id===id)?.formats||[];
+  S.newFmts=courseFormats.length===1?[...courseFormats]:[]
   render();
 }
 function openAdd(dateStr){
@@ -216,7 +218,8 @@ function removeDistFmt(f){
   S.editing.formats=S.editing.formats.filter(x=>x!==f);render();
 }
 function toggleNFmt(f){
-  S.newFmts=S.newFmts.includes(f)?S.newFmts.filter(x=>x!==f):[...S.newFmts,f];render();
+  S.newFmts=S.newFmts.includes(f)?S.newFmts.filter(x=>x!==f):[...S.newFmts,f];
+  render();
 }
 
 async function addParticipant(){
