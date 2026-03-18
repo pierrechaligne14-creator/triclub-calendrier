@@ -322,11 +322,6 @@ function renderDetailModal(){
         <input type="text" class="${S.partErrors&&S.partErrors.pseudo?'field-error':''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value"/>
         ${S.partErrors&&S.partErrors.pseudo?`<span class="error-msg">${S.partErrors.pseudo}</span>`:''}
         ${c.formats.length
-          ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p><div class="fmt-row">${fmtBtns}</div>
-          ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}
-          :'<p class="fmt-hint">Aucun format défini pour cette course.</p>'
-        }
-        ${c.formats.length
           ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
           <div class="fmt-row">${fmtBtns}</div>
           ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
