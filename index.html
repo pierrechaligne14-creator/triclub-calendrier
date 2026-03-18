@@ -83,6 +83,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .dist-fmt-row input{flex:1;border:1px solid #e5e5e0;border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a}
 .dist-fmt-row button{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
 .fmt-hint{font-size:11px;color:#aaa;margin-bottom:6px}
+.field-error{border-color:#e24b4a !important;background:#fff8f8 !important}
+.error-msg{font-size:11px;color:#e24b4a;margin-top:3px;display:block}
+.fmt-error{font-size:11px;color:#e24b4a;margin-bottom:4px;display:block}
 .loading{text-align:center;padding:3rem;color:#aaa;font-size:14px}
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:opacity .3s}
 .toast.show{opacity:1}
@@ -137,6 +140,7 @@ let S={
   newPseudo:'',newFmts:[],
   tmpDist:'',tmpDplus:'',
   loading:false,
+  errors:{}, partErrors:{},
 };
 
 async function loadCourses(){
@@ -178,7 +182,12 @@ function closeModal(){S.view=null;S.editing=null;S.editMode=false;render()}
 
 async function saveForm(){
   const c=S.editing;
-  if(!c.titre.trim())return;
+  const errors={};
+  if(!c.titre.trim()) errors.titre='Nom obligatoire';
+  if(!c.lieu.trim()) errors.lieu='Lieu obligatoire';
+  if(c.formats.length===0) errors.formats='Au moins un format obligatoire';
+  if(Object.keys(errors).length>0){S.errors=errors;render();return;}
+  S.errors={};
   const payload={titre:c.titre,date:c.date,lieu:c.lieu,sport:c.sport,formats:c.formats,site:c.site,wa:c.wa,comment:c.comment};
   if(c.id){
     const {error}=await db.from('courses').update(payload).eq('id',c.id);
@@ -192,7 +201,6 @@ async function saveForm(){
   closeModal();
   await loadCourses();
 }
-
 async function delCourse(id){
   const {error}=await db.from('courses').delete().eq('id',id);
   if(error){showToast('Erreur lors de la suppression');return;}
@@ -224,7 +232,10 @@ function toggleNFmt(f){
 
 async function addParticipant(){
   const pseudo=S.newPseudo.trim();
-  if(!pseudo||S.newFmts.length===0)return;
+  S.partErrors={};
+  if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
+  if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
+  if(Object.keys(S.partErrors).length>0){render();return;}
   const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts});
   if(error){showToast('Erreur lors de l\'inscription');return;}
   showToast(`${pseudo} inscrit(e) ✓`);
@@ -308,9 +319,11 @@ function renderDetailModal(){
       <div style="margin-bottom:4px">${chips||'<span style="font-size:13px;color:#aaa">Aucun inscrit.</span>'}</div>
       <div class="add-box">
         <div class="add-lbl">Rejoindre cette course</div>
-        <input type="text" placeholder="Ton pseudo" value="${S.newPseudo}" oninput="S.newPseudo=this.value"/>
+        <input type="text" class="${S.partErrors&&S.partErrors.pseudo?'field-error':''}" placeholder="Ton pseudo *" value="${S.newPseudo}" oninput="S.newPseudo=this.value"/>
+        ${S.partErrors&&S.partErrors.pseudo?`<span class="error-msg">${S.partErrors.pseudo}</span>`:''}
         ${c.formats.length
-          ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p><div class="fmt-row">${fmtBtns}</div>`
+          ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p><div class="fmt-row">${fmtBtns}</div>
+          ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}
           :'<p class="fmt-hint">Aucun format défini pour cette course.</p>'
         }
         <button class="btn-join" onclick="addParticipant()" ${joinDisabled}>
@@ -356,13 +369,14 @@ function renderFormModal(){
       <button class="mcls" onclick="closeModal()">&#215;</button>
     </div>
     ${S.editMode?`<div class="edit-banner">Modification de "${c.titre}"</div>`:''}
-    <div class="frow"><label>Nom de la course</label><input type="text" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/></div>
+    <div class="frow"><label>Nom de la course <span style="color:#e24b4a">*</span></label><input type="text" class="${S.errors&&S.errors.titre?'field-error':''}" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/>${S.errors&&S.errors.titre?`<span class="error-msg">${S.errors.titre}</span>`:''}</div>
     <div class="r2">
       <div class="frow"><label>Date</label><input type="date" value="${c.date}" onchange="S.editing.date=this.value"/></div>
-      <div class="frow"><label>Lieu</label><input type="text" value="${c.lieu}" oninput="S.editing.lieu=this.value" placeholder="Ville"/></div>
+      <div class="frow"><label>Lieu <span style="color:#e24b4a">*</span></label><input type="text" class="${S.errors&&S.errors.lieu?'field-error':''}" value="${c.lieu}" oninput="S.editing.lieu=this.value" placeholder="Ville"/>${S.errors&&S.errors.lieu?`<span class="error-msg">${S.errors.lieu}</span>`:''}</div>
     </div>
     <div class="frow"><label>Sport</label><select onchange="S.editing.sport=this.value;S.editing.formats=[];S.tmpDist='';S.tmpDplus='';render()">${sportOpts}</select></div>
     ${fmtField}
+    ${S.errors&&S.errors.formats?`<span class="fmt-error">${S.errors.formats}</span>`:''}
     <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${c.comment}</textarea></div>
     <div class="frow"><label>Site internet</label><input type="url" value="${c.site}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
     <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
