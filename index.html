@@ -326,6 +326,13 @@ function renderDetailModal(){
           ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}
           :'<p class="fmt-hint">Aucun format défini pour cette course.</p>'
         }
+        ${c.formats.length
+          ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
+          <div class="fmt-row">${fmtBtns}</div>
+          ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
+          :`<p class="fmt-hint">Aucun format défini pour cette course.</p>
+          ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
+        }
         <button class="btn-join" onclick="addParticipant()" ${joinDisabled}>
           ${S.newFmts.length>0?`+ Inscrire (${S.newFmts.length} format${S.newFmts.length>1?'s':''})`:'+ Inscrire'}
         </button>
