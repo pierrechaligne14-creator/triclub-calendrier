@@ -546,30 +546,31 @@ function render(){
   el.innerHTML=`
     <div class="hdr">
       <div class="hdr-title">Tri<em>Club</em> Calendrier</div>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="view-switch">
-            <button class="vs-btn${S.vue==='cal'?' active':''}" onclick="S.vue='cal';render()">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-              Calendrier
-            </button>
-            <button class="vs-btn${S.vue==='list'?' active':''}" onclick="S.vue='list';render()">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
-              Liste
-            </button>
-          </div>
-          <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="view-switch">
+          <button class="vs-btn${S.vue==='cal'?' active':''}" onclick="S.vue='cal';render()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+            Calendrier
+          </button>
+          <button class="vs-btn${S.vue==='list'?' active':''}" onclick="S.vue='list';render()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+            Liste
+          </button>
+        </div>
+        <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
       </div>
     </div>
-   
     ${S.vue==='cal'?`
-  <div class="cal-nav">
-    <button onclick="prevMonth()">&#8592;</button>
-    <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
-    <button onclick="nextMonth()">&#8594;</button>
-  </div>
-  ${renderCal()}
-  <div class="legend">${SP.map(s=>`<span class="leg-item" style="background:${s.bg};color:${s.c}">${s.l}</span>`).join('')}</div>
-`:renderList()}
+      <div class="cal-nav">
+        <button onclick="prevMonth()">&#8592;</button>
+        <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
+        <button onclick="nextMonth()">&#8594;</button>
+      </div>
+      ${renderCal()}
+      <div class="legend">${SP.map(s=>`<span class="leg-item" style="background:${s.bg};color:${s.c}">${s.l}</span>`).join('')}</div>
+    `:renderList()}
+    ${S.view==='detail'?renderDetailModal():''}
+    ${S.view==='form'?renderFormModal():''}
   `;
 }
 
