@@ -464,7 +464,14 @@ function renderList(){
   if(S.filterMois) courses=courses.filter(c=>c.date.startsWith(S.filterMois));
   if(S.filterSport) courses=courses.filter(c=>c.sport===S.filterSport);
   if(S.filterFormat) courses=courses.filter(c=>c.formats.includes(S.filterFormat));
-  if(S.filterSearch) courses=courses.filter(c=>c.titre.toLowerCase().includes(S.filterSearch.toLowerCase())||c.lieu.toLowerCase().includes(S.filterSearch.toLowerCase()));
+  if(S.filterSearch){
+    const q=S.filterSearch.toLowerCase();
+    courses=courses.filter(c=>
+      c.titre.toLowerCase().includes(q)||
+      c.lieu.toLowerCase().includes(q)||
+      c.participants.some(p=>p.pseudo.toLowerCase().includes(q))
+    );
+  }
 
   const byDate={};
   courses.forEach(c=>{
@@ -534,8 +541,11 @@ function renderList(){
       </select>
       <div class="search-wrap">
         <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
-        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;render()"/>
+        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderListOnly()"/>
       </div>
+      ${S.filterMois||S.filterSport||S.filterFormat||S.filterSearch
+        ?`<button onclick="S.filterMois='';S.filterSport='';S.filterFormat='';S.filterSearch='';render()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#aaa;white-space:nowrap;padding:4px 6px;font-family:inherit">× Réinitialiser</button>`
+        :''}
     </div>
     ${rows||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Aucune course trouvée.</div>'}
   `;
