@@ -530,18 +530,18 @@ function renderList(){
 
   return `
     <div class="list-filters">
-      <select class="fsel${S.filterMois?' on':''}" onchange="S.filterMois=this.value;render()">
-        <option value="" ${!S.filterMois?'selected':''}>Mois</option>${moisOpts}
+      <select class="fsel${S.filterMois?' on':''}" data-filter="mois" onchange="S.filterMois=this.value;renderKeepFocus()">
+        <option value="">Mois</option>${moisOpts}
       </select>
-      <select class="fsel${S.filterSport?' on':''}" onchange="S.filterSport=this.value;render()">
-        <option value="" ${!S.filterSport?'selected':''}>Sport</option>${sportOpts}
+      <select class="fsel${S.filterSport?' on':''}" data-filter="sport" onchange="S.filterSport=this.value;renderKeepFocus()">
+        <option value="">Sport</option>${sportOpts}
       </select>
-      <select class="fsel${S.filterFormat?' on':''}" onchange="S.filterFormat=this.value;render()">
-        <option value="" ${!S.filterFormat?'selected':''}>Format</option>${fmtOpts}
+      <select class="fsel${S.filterFormat?' on':''}" data-filter="format" onchange="S.filterFormat=this.value;renderKeepFocus()">
+        <option value="">Format</option>${fmtOpts}
       </select>
       <div class="search-wrap">
         <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
-        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderListOnly()"/>
+        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderKeepFocus()"/>
       </div>
       ${S.filterMois||S.filterSport||S.filterFormat||S.filterSearch
         ?`<button onclick="S.filterMois='';S.filterSport='';S.filterFormat='';S.filterSearch='';render()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#aaa;white-space:nowrap;padding:4px 6px;font-family:inherit">× Réinitialiser</button>`
@@ -549,6 +549,15 @@ function renderList(){
     </div>
     ${rows||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Aucune course trouvée.</div>'}
   `;
+}
+function renderKeepFocus(){
+  const vals={mois:S.filterMois,sport:S.filterSport,format:S.filterFormat,search:S.filterSearch};
+  render();
+  document.querySelectorAll('.fsel').forEach(sel=>{
+    sel.value=vals[sel.dataset.filter]||'';
+  });
+  const input=document.querySelector('.list-search');
+  if(input){input.value=vals.search;input.focus();}
 }
 function render(){
   const el=document.getElementById('root');if(!el)return;
