@@ -323,7 +323,7 @@ function renderDetailModal(){
     const fesc=f.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<button class="fb${sel?' on':''}" onclick="toggleNFmt('${fesc}')">${f}</button>`;
   }).join('');
-  const joinDisabled=(!S.newPseudo.trim()||S.newFmts.length===0)?'disabled':'';
+  const joinDisabled=(!S.newPseudo.trim())?'disabled':'';
 
   return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
     <div class="mhdr">
