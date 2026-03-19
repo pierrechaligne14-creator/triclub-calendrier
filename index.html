@@ -90,6 +90,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:opacity .3s}
 .toast.show{opacity:1}
 @media(max-width:580px){.dc{min-height:60px;padding:3px}.pill{font-size:9px}.r2{grid-template-columns:1fr}.app{padding:0 8px 3rem}}
+.view-switch{display:flex;gap:2px}
+.vs-btn{background:none;border:none;cursor:pointer;padding:5px 10px;font-size:13px;color:#aaa;border-radius:6px;display:flex;align-items:center;gap:5px;font-family:inherit}
+.vs-btn.active{color:#1a1a1a;background:#f0f0ee}
+.list-filters{display:flex;gap:6px;align-items:center;margin-bottom:1.5rem;flex-wrap:nowrap}
+.fsel{border:1px solid #e5e5e0;background:#fff;color:#888;font-size:12px;font-family:inherit;border-radius:20px;padding:5px 10px;cursor:pointer;appearance:none;-webkit-appearance:none}
+.fsel.on{color:#1a1a1a;border-color:#aaa;font-weight:500}
+.search-wrap{margin-left:auto;position:relative;flex-shrink:0}
+.list-search{border:1px solid #e5e5e0;border-radius:20px;padding:5px 10px 5px 28px;font-size:12px;font-family:inherit;background:#fff;color:#1a1a1a;width:130px}
+.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#aaa;pointer-events:none}
+.date-row{display:flex;align-items:center;gap:12px;margin:1.25rem 0 4px}
+.date-line{flex:1;height:1px;background:#e5e5e0}
+.date-lbl{font-size:11px;font-weight:600;color:#aaa;letter-spacing:.05em;white-space:nowrap}
+.ev-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0ee;cursor:pointer}
+.ev-item:last-child{border-bottom:none}
+.ev-item:hover .ev-title{color:#1D9E75}
+.sbar{width:3px;height:34px;border-radius:99px;flex-shrink:0}
+.ev-info{flex:1;min-width:0}
+.ev-title{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s}
+.ev-sub{font-size:11px;color:#aaa;margin-top:1px}
+.ev-fmts{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;max-width:100px;justify-content:flex-end}
+.ev-nb{font-size:12px;color:#aaa;flex-shrink:0;min-width:24px;text-align:right}
+.ev-detail{background:#f8f8f6;border-radius:8px;padding:12px;margin:4px 0 8px}
+.det-parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin-bottom:10px}
+.det-fmt-lbl{font-size:11px;font-weight:600;margin-bottom:5px}
+.det-plist{border-left:2px solid;padding-left:8px;display:flex;flex-direction:column;gap:3px}
+.det-pname{font-size:12px;color:#1a1a1a}
+.det-actions{display:flex;gap:6px}
+.det-btn{font-size:12px;border:1px solid #e5e5e0;border-radius:6px;padding:4px 10px;background:#fff;cursor:pointer;color:#666}
+.det-btn:hover{background:#f0f0ee}
 </style>
 </head>
 <body>
@@ -141,6 +170,12 @@ let S={
   tmpDist:'',tmpDplus:'',
   loading:false,
   errors:{}, partErrors:{},
+  vue:'cal',
+  listExpanded:{},
+  filterMois:'',
+  filterSport:'',
+  filterFormat:'',
+  filterSearch:'',
 };
 
 async function loadCourses(){
@@ -414,24 +449,131 @@ function renderFormModal(){
     </div>
   </div></div>`;
 }
+  
+function renderList(){
+  const moisDispo=[...new Set(S.courses.map(c=>c.date.slice(0,7)))].sort();
+  const moisOpts=moisDispo.map(m=>{
+    const [y,mo]=m.split('-');
+    return `<option value="${m}">${MONTHS[parseInt(mo)-1]} ${y}</option>`;
+  }).join('');
+  const sportOpts=SP.map(s=>`<option value="${s.id}">${s.l}</option>`).join('');
+  const allFmts=[...new Set(S.courses.flatMap(c=>c.formats))].sort();
+  const fmtOpts=allFmts.map(f=>`<option value="${f}">${f}</option>`).join('');
 
+  let courses=[...S.courses].sort((a,b)=>a.date.localeCompare(b.date));
+  if(S.filterMois) courses=courses.filter(c=>c.date.startsWith(S.filterMois));
+  if(S.filterSport) courses=courses.filter(c=>c.sport===S.filterSport);
+  if(S.filterFormat) courses=courses.filter(c=>c.formats.includes(S.filterFormat));
+  if(S.filterSearch) courses=courses.filter(c=>c.titre.toLowerCase().includes(S.filterSearch.toLowerCase())||c.lieu.toLowerCase().includes(S.filterSearch.toLowerCase()));
+
+  const byDate={};
+  courses.forEach(c=>{
+    if(!byDate[c.date])byDate[c.date]=[];
+    byDate[c.date].push(c);
+  });
+
+  const rows=Object.entries(byDate).map(([date,cs])=>{
+    const d=new Date(date);
+    const dlbl=d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
+    const evItems=cs.map(c=>{
+      const s=sp(c.sport);
+      const expanded=S.listExpanded[c.id];
+      const fmtPills=c.formats.map(f=>`<span class="fmt-pill" style="background:${s.bg};color:${s.c};font-size:11px;font-weight:500;border-radius:99px;padding:2px 7px">${f}</span>`).join('');
+
+      const fmtMap={};
+      c.participants.forEach(p=>p.fmts.forEach(f=>{
+        if(!fmtMap[f])fmtMap[f]=[];
+        fmtMap[f].push(p);
+      }));
+      const partCols=Object.entries(fmtMap).map(([fmt,parts])=>`
+        <div>
+          <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
+          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<div class="det-pname">${p.pseudo}</div>`).join('')}</div>
+        </div>`).join('');
+
+      const detail=expanded?`
+        <div class="ev-detail">
+          ${c.comment?`<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${c.comment}</div>`:''}
+          ${c.participants.length?`<div class="det-parts">${partCols}</div>`:'<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
+          <div class="det-actions">
+            ${c.site?`<a class="det-btn" href="${c.site}" target="_blank">Site web</a>`:''}
+            ${c.wa?`<a class="det-btn lnk-wa" href="${c.wa}" target="_blank" style="background:#25D366;color:#fff;border-color:#25D366">WhatsApp</a>`:''}
+            <button class="det-btn" onclick="openEdit(${c.id})">✎ Modifier</button>
+            <button class="det-btn" onclick="openDetail(${c.id})">+ Rejoindre</button>
+          </div>
+        </div>`:''
+
+      return `
+        <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
+          <div class="sbar" style="background:${s.c}"></div>
+          <div class="ev-info">
+            <div class="ev-title">${c.titre}</div>
+            <div class="ev-sub">${c.lieu}${!sp(c.sport).multi&&c.formats.length?` · ${c.formats.join(' / ')}`:''}</div>
+          </div>
+          <div class="ev-fmts">${sp(c.sport).multi?fmtPills:''}</div>
+          <div class="ev-nb">${c.participants.length}</div>
+        </div>
+        ${detail}`;
+    }).join('');
+
+    return `
+      <div class="date-row"><span class="date-lbl">${dlbl}</span><div class="date-line"></div></div>
+      ${evItems}`;
+  }).join('');
+
+  return `
+    <div class="list-filters">
+      <select class="fsel${S.filterMois?' on':''}" onchange="S.filterMois=this.value;render()">
+        <option value="">Mois</option>${moisOpts}
+      </select>
+      <select class="fsel${S.filterSport?' on':''}" onchange="S.filterSport=this.value;render()">
+        <option value="">Sport</option>${sportOpts}
+      </select>
+      <select class="fsel${S.filterFormat?' on':''}" onchange="S.filterFormat=this.value;render()">
+        <option value="">Format</option>${fmtOpts}
+      </select>
+      <div class="search-wrap">
+        <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;render()"/>
+      </div>
+    </div>
+    ${rows||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Aucune course trouvée.</div>'}
+  `;
+}
 function render(){
   const el=document.getElementById('root');if(!el)return;
   if(S.loading){el.innerHTML='<div class="loading">Chargement...</div>';return;}
   el.innerHTML=`
     <div class="hdr">
       <div class="hdr-title">Tri<em>Club</em> Calendrier</div>
-      <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="view-switch">
+            <button class="vs-btn${S.vue==='cal'?' active':''}" onclick="S.vue='cal';render()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+              Calendrier
+            </button>
+            <button class="vs-btn${S.vue==='list'?' active':''}" onclick="S.vue='list';render()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+              Liste
+            </button>
+          </div>
+          <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
+      </div>
     </div>
     <div class="cal-nav">
       <button onclick="prevMonth()">&#8592;</button>
       <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
       <button onclick="nextMonth()">&#8594;</button>
     </div>
-    ${renderCal()}
-    <div class="legend">${SP.map(s=>`<span class="leg-item" style="background:${s.bg};color:${s.c}">${s.l}</span>`).join('')}</div>
-    ${S.view==='detail'?renderDetailModal():''}
-    ${S.view==='form'?renderFormModal():''}
+    ${S.vue==='cal'?`
+  <div class="cal-nav">
+    <button onclick="prevMonth()">&#8592;</button>
+    <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
+    <button onclick="nextMonth()">&#8594;</button>
+  </div>
+  ${renderCal()}
+  <div class="legend">${SP.map(s=>`<span class="leg-item" style="background:${s.bg};color:${s.c}">${s.l}</span>`).join('')}</div>
+`:renderList()}
   `;
 }
 
