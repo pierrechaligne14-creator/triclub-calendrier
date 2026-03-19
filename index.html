@@ -560,11 +560,7 @@ function render(){
           <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
       </div>
     </div>
-    <div class="cal-nav">
-      <button onclick="prevMonth()">&#8592;</button>
-      <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
-      <button onclick="nextMonth()">&#8594;</button>
-    </div>
+   
     ${S.vue==='cal'?`
   <div class="cal-nav">
     <button onclick="prevMonth()">&#8592;</button>
