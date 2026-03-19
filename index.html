@@ -345,7 +345,7 @@ function renderDetailModal(){
       <div style="margin-bottom:12px">${participantsBlock}</div>
       <div class="add-box">
         <div class="add-lbl">Rejoindre cette course</div>
-        <input type="text" class="${S.partErrors&&S.partErrors.pseudo?'field-error':''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value"/>
+        <input type="text" class="${S.partErrors&&S.partErrors.pseudo?'field-error':''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value;render()"/>
         ${S.partErrors&&S.partErrors.pseudo?`<span class="error-msg">${S.partErrors.pseudo}</span>`:''}
         ${c.formats.length
           ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
