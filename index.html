@@ -582,6 +582,11 @@ function render(){
     ${S.view==='detail'?renderDetailModal():''}
     ${S.view==='form'?renderFormModal():''}
   `;
+  document.querySelectorAll('.fsel').forEach(sel=>{
+    if(sel.dataset.filter==='mois') sel.value=S.filterMois;
+    if(sel.dataset.filter==='sport') sel.value=S.filterSport;
+    if(sel.dataset.filter==='format') sel.value=S.filterFormat;
+  });
 }
 
 function prevMonth(){S.month===0?(S.month=11,S.year--):S.month--;render()}
