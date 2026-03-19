@@ -557,7 +557,12 @@ function renderKeepFocus(){
     sel.value=vals[sel.dataset.filter]||'';
   });
   const input=document.querySelector('.list-search');
-  if(input){input.value=vals.search;input.focus();}
+  if(input){
+    const pos=input.value.length;
+    input.value=vals.search;
+    input.focus();
+    input.setSelectionRange(pos,pos);
+  }
 }
 function render(){
   const el=document.getElementById('root');if(!el)return;
