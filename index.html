@@ -161,9 +161,9 @@ function getCourses(date){return S.courses.filter(c=>sameDay(new Date(c.date),da
 function openDetail(id){
   S.view='detail';S.editMode=false;
   S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===id)));
-  S.newPseudo='';
-  const courseFormats=S.courses.find(c=>c.id===id)?.formats||[];
-  S.newFmts=courseFormats.length===1?[...courseFormats]:[]
+  S.newPseudo='';S.partErrors={};
+  const courseFormats=S.editing.formats||[];
+  S.newFmts=courseFormats.length===1?[...courseFormats]:[];
   render();
 }
 function openAdd(dateStr){
@@ -234,11 +234,9 @@ async function addParticipant(){
   const pseudo=S.newPseudo.trim();
   S.partErrors={};
   if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
-  const autoFmt=S.editing.formats.length===1;
-  if(S.newFmts.length===0&&!autoFmt) S.partErrors.fmts='Sélectionne au moins un format';
+  if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
   if(Object.keys(S.partErrors).length>0){render();return;}
-  const fmtsToSave=S.newFmts.length===0&&autoFmt?[...S.editing.formats]:S.newFmts;
-  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:fmtsToSave});
+  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts});
   if(error){showToast('Erreur lors de l\'inscription');return;}
   showToast(`${pseudo} inscrit(e) ✓`);
   S.newPseudo='';S.newFmts=[];
@@ -325,8 +323,7 @@ function renderDetailModal(){
     const fesc=f.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return `<button class="fb${sel?' on':''}" onclick="toggleNFmt('${fesc}')">${f}</button>`;
   }).join('');
-  const autoFmt=c.formats.length===1;
-  const joinDisabled=(!S.newPseudo.trim()||(S.newFmts.length===0&&!autoFmt))?'disabled':'';
+  const joinDisabled=(!S.newPseudo.trim()||S.newFmts.length===0)?'disabled':'';
 
   return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
     <div class="mhdr">
