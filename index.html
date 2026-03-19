@@ -299,7 +299,7 @@ function renderDetailModal(){
       fmtMap[f].push(p);
     });
   });
-  const initials=name=>name.trim().split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+ 
   const cols=Object.entries(fmtMap).map(([fmt,parts])=>`
     <div>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
