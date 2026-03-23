@@ -311,7 +311,14 @@ function renderCal(){
     const ds=fmtDate(d);
     const pills=cs.map(c=>{
       const s=sp(c.sport);
-      return `<span class="pill" style="background:${s.bg};color:${s.c}" onclick="event.stopPropagation();openDetail(${c.id})">${c.titre}${c.participants.length?` (${c.participants.length})`:''}</span>`;
+      const fmtCount={};
+      c.participants.forEach(p=>p.fmts.forEach(f=>{fmtCount[f]=(fmtCount[f]||0)+1}));
+      const fmtSummary=Object.entries(fmtCount).map(([f,n])=>`${n}×${f}`).join(' ');
+      const nb=c.participants.length;
+      return `<span class="pill" style="background:${s.bg};color:${s.c};white-space:normal;line-height:1.3;padding:3px 6px;font-size:11px" onclick="event.stopPropagation();openDetail(${c.id})">
+        ${nb?`<strong style="font-size:12px">${nb} · </strong>`:''}${c.titre}
+        ${fmtSummary?`<br><span style="font-size:10px;opacity:.8">${fmtSummary}</span>`:''}
+      </span>`;
     }).join('');
     return `<div class="dc${!mine?' om':''}${isT?' td':''}" onclick="openAdd('${ds}')"><div class="dn">${d.getDate()}</div>${pills}</div>`;
   }).join('');
