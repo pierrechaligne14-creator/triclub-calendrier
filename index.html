@@ -133,14 +133,14 @@ const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const SP=[
-  {id:'tri', l:'Triathlon',    c:'#085041',bg:'#E1F5EE',multi:true},
-  {id:'dua', l:'Duathlon',     c:'#712B13',bg:'#FAECE7',multi:true},
-  {id:'aqua',l:'Aquathlon',    c:'#085041',bg:'#9FE1CB',multi:true},
-  {id:'swim',l:'Swimrun',      c:'#3C3489',bg:'#EEEDFE',multi:true},
-  {id:'run', l:'Course à pied',c:'#633806',bg:'#FAEEDA',multi:false},
-  {id:'velo',l:'Vélo',         c:'#0C447C',bg:'#E6F1FB',multi:false},
-  {id:'nat', l:'Natation',     c:'#3C3489',bg:'#EEEDFE',multi:false},
-  {id:'trail',l:'Trail',       c:'#27500A',bg:'#EAF3DE',multi:false},
+  {id:'tri', l:'Triathlon',    c:'#085041',bg:'#E1F5EE',mid:'#5DCAA5',multi:true},
+  {id:'dua', l:'Duathlon',     c:'#712B13',bg:'#FAECE7',mid:'#F0997B',multi:true},
+  {id:'aqua',l:'Aquathlon',    c:'#085041',bg:'#9FE1CB',mid:'#1D9E75',multi:true},
+  {id:'swim',l:'Swimrun',      c:'#3C3489',bg:'#EEEDFE',mid:'#AFA9EC',multi:true},
+  {id:'run', l:'Course à pied',c:'#633806',bg:'#FAEEDA',mid:'#EF9F27',multi:false},
+  {id:'velo',l:'Vélo',         c:'#0C447C',bg:'#E6F1FB',mid:'#85B7EB',multi:false},
+  {id:'nat', l:'Natation',     c:'#3C3489',bg:'#EEEDFE',mid:'#AFA9EC',multi:false},
+  {id:'trail',l:'Trail',       c:'#27500A',bg:'#EAF3DE',mid:'#97C459',multi:false},
 ];
 const FMT_MULTI=['XS','S','M','L','XL'];
 const DAYS=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
@@ -521,7 +521,7 @@ function renderList(){
 
       return `
         <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
-          <div class="sbar" style="background:${s.bg}"></div>
+          <div class="sbar" style="background:${s.mid}"></div>
           <div class="ev-info">
             <div class="ev-title">${c.titre}</div>
             <div class="ev-sub">${c.lieu}${!sp(c.sport).multi&&c.formats.length?` · ${c.formats.join(' / ')}`:''}</div>
