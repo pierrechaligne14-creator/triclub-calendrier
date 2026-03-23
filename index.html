@@ -186,7 +186,7 @@ async function loadCourses(){
   S.courses=courses.map(c=>({
     ...c,
     formats:c.formats||[],
-    participants:(participants||[]).filter(p=>p.course_id===c.id).map(p=>({...p,fmts:p.fmts||[]}))
+    participants:(ants||[]).filter(p=>p.course_id===c.id).map(p=>({...p,fmts:p.fmts||[],objectif:p.objectif||false}))
   }));
   S.loading=false;render();
 }
