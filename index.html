@@ -389,7 +389,7 @@ function renderDetailModal(){
           :`<p class="fmt-hint">Aucun format défini pour cette course.</p>
             ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
         }
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;cursor:pointer">
+        <label style="display:flex;align-items:center;gap:8px;font-size:8px;font-style:italic;color:var(--color-text-secondary);margin-bottom:8px;cursor:pointer">
           <input type="checkbox" ${S.newObjectif?'checked':''} onchange="S.newObjectif=this.checked"/>
           Ceci est mon objectif principal
         </label>
