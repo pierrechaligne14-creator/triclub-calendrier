@@ -526,7 +526,7 @@ function renderList(){
             <div class="ev-title">${c.titre} <span style="font-size:11px;font-weight:400;color:#aaa">· ${s.l}</span></div>
             <div class="ev-sub">${c.lieu}${!sp(c.sport).multi&&c.formats.length?` · ${c.formats.join(' / ')}`:''}</div>
           </div>
-          <div class="ev-fmts">${sp(c.sport).multi?fmtPills:''}</div>
+          <div class="ev-fmts">${fmtPills}</div>
           <div class="ev-nb">${c.participants.length}</div>
         </div>
         ${detail}`;
