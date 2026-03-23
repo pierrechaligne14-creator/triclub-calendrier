@@ -267,19 +267,16 @@ function toggleNFmt(f){
 
 async function addParticipant(){
   const pseudo=S.newPseudo.trim();
-  
   S.partErrors={};
   if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
   if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
   if(Object.keys(S.partErrors).length>0){render();return;}
-  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts});
-  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:fmtsToSave,objectif:S.newObjectif||false});
+  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts,objectif:S.newObjectif||false});
   if(error){showToast('Erreur lors de l\'inscription');return;}
   showToast(`${pseudo} inscrit(e) ✓`);
-  S.newPseudo='';S.newFmts=[];
+  S.newPseudo='';S.newFmts=[];S.newObjectif=false;
   await loadCourses();
   S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===S.editing.id)));
-  S.newObjectif=false;
   render();
 }
 
