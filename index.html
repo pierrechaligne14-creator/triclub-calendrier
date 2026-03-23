@@ -281,7 +281,8 @@ async function addParticipant(){
   if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
   if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
   if(Object.keys(S.partErrors).length>0){render();return;}
-  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts,objectif:S.newObjectif||false});
+  const inserts=S.newFmts.map(f=>({course_id:S.editing.id,pseudo,fmts:[f],objectif:S.newObjectif||false}));
+  const {error}=await db.from('participants').insert(inserts);
   if(error){showToast('Erreur lors de l\'inscription');return;}
   showToast(`${pseudo} inscrit(e) ✓`);
   S.newPseudo='';S.newFmts=[];S.newObjectif=false;
@@ -290,17 +291,9 @@ async function addParticipant(){
   render();
 }
 
-async function removeParticipant(partId, fmt){
-  const p=S.editing.participants.find(x=>x.id===partId);
-  if(!p)return;
-  if(p.fmts.length<=1){
-    const {error}=await db.from('participants').delete().eq('id',partId);
-    if(error){showToast('Erreur');return;}
-  } else {
-    const newFmts=p.fmts.filter(f=>f!==fmt);
-    const {error}=await db.from('participants').update({fmts:newFmts}).eq('id',partId);
-    if(error){showToast('Erreur');return;}
-  }
+async function removeParticipant(partId){
+  const {error}=await db.from('participants').delete().eq('id',partId);
+  if(error){showToast('Erreur');return;}
   showToast('Désinscription effectuée');
   await loadCourses();
   S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===S.editing.id)));
@@ -367,7 +360,7 @@ function renderDetailModal(){
         ${parts.map(p=>`
           <div style="display:flex;align-items:center;gap:8px">
             <span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>
-            <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id},this.getAttribute('data-fmt'))" data-fmt="${fmt.replace(/"/g,'&quot;')}">×</button>
+            <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
           </div>`).join('')}
       </div>
     </div>`).join('');
