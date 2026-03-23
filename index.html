@@ -176,7 +176,7 @@ let S={
   filterSport:'',
   filterFormat:'',
   filterSearch:'',
-  filterCalSport:'',
+  filterCalSport:[],
 };
 
 async function loadCourses(){
@@ -306,7 +306,7 @@ function renderCal(){
   const cells=calCells();
   const hdrs=DAYS.map(d=>`<div class="dh">${d}</div>`).join('');
   const dcs=cells.map(({d,mine})=>{
-    const cs=getCourses(d).filter(c=>!S.filterCalSport||c.sport===S.filterCalSport);
+    const cs=getCourses(d).filter(c=>S.filterCalSport.length===0||S.filterCalSport.includes(c.sport));
     const isT=sameDay(d,today);
     const ds=fmtDate(d);
     const pills=cs.map(c=>{
@@ -598,12 +598,12 @@ function render(){
       ${renderCal()}
       <div class="legend">
         ${SP.map(s=>`
-          <span class="leg-item" 
-            style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport===s.id?s.c:'transparent'};transition:border .15s" 
-            onclick="S.filterCalSport=S.filterCalSport===('${s.id}')?'':'${s.id}';render()">
+          <span class="leg-item"
+            style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport.includes(s.id)?s.c:'transparent'};transition:border .15s"
+            onclick="S.filterCalSport.includes('${s.id}')?S.filterCalSport=S.filterCalSport.filter(x=>x!=='${s.id}'):S.filterCalSport.push('${s.id}');render()">
             ${s.l}
           </span>`).join('')}
-        ${S.filterCalSport?`<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport='';render()">× Tout afficher</span>`:''}
+        ${S.filterCalSport.length?`<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>`:''}
       </div>
     `:renderList()}
     ${S.view==='detail'?renderDetailModal():''}
