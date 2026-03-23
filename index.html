@@ -166,7 +166,7 @@ let S={
   year:today.getFullYear(),month:today.getMonth(),
   courses:[],
   view:null,editing:null,editMode:false,
-  newPseudo:'',newFmts:[],
+  newPseudo:'',newFmts:[],newObjectif:false,
   tmpDist:'',tmpDplus:'',
   loading:false,
   errors:{}, partErrors:{},
@@ -182,7 +182,7 @@ async function loadCourses(){
   S.loading=true;render();
   const {data:courses,error}=await db.from('courses').select('*').order('date');
   if(error){showToast('Erreur de chargement');S.loading=false;render();return;}
-  const {data:participants}=await db.from('participants').select('*');
+  const {data:ants}=await db.from('participants').select('*');
   S.courses=courses.map(c=>({
     ...c,
     formats:c.formats||[],
@@ -267,16 +267,19 @@ function toggleNFmt(f){
 
 async function addParticipant(){
   const pseudo=S.newPseudo.trim();
+  
   S.partErrors={};
   if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
   if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
   if(Object.keys(S.partErrors).length>0){render();return;}
   const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:S.newFmts});
+  const {error}=await db.from('participants').insert({course_id:S.editing.id,pseudo,fmts:fmtsToSave,objectif:S.newObjectif||false});
   if(error){showToast('Erreur lors de l\'inscription');return;}
   showToast(`${pseudo} inscrit(e) ✓`);
   S.newPseudo='';S.newFmts=[];
   await loadCourses();
   S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===S.editing.id)));
+  S.newObjectif=false;
   render();
 }
 
@@ -344,7 +347,7 @@ function renderDetailModal(){
       <div style="border-left:2px solid ${s.bg};padding-left:10px;display:flex;flex-direction:column;gap:8px">
         ${parts.map(p=>`
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;color:#1a1a1a">${p.pseudo}</span>
+            <span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>
             <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
           </div>`).join('')}
       </div>
@@ -389,6 +392,10 @@ function renderDetailModal(){
           :`<p class="fmt-hint">Aucun format défini pour cette course.</p>
             ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
         }
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;cursor:pointer">
+          <input type="checkbox" ${S.newObjectif?'checked':''} onchange="S.newObjectif=this.checked"/>
+          Ceci est mon objectif principal
+        </label>
         <button class="btn-join" onclick="addParticipant()" ${joinDisabled}>
           ${S.newFmts.length>0?`+ Inscrire (${S.newFmts.length} format${S.newFmts.length>1?'s':''})`:'+ Inscrire'}
         </button>
@@ -495,7 +502,7 @@ function renderList(){
       const partCols=Object.entries(fmtMap).map(([fmt,parts])=>`
         <div>
           <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
-          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<div class="det-pname">${p.pseudo}</div>`).join('')}</div>
+          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>`).join('')}</div>
         </div>`).join('');
 
       const detail=expanded?`
