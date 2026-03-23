@@ -521,7 +521,7 @@ function renderList(){
 
       return `
         <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
-          <div class="sbar" style="background:${s.c}"></div>
+          <div class="sbar" style="background:${s.bg};border:1px solid ${s.c}"></div>
           <div class="ev-info">
             <div class="ev-title">${c.titre}</div>
             <div class="ev-sub">${c.lieu}${!sp(c.sport).multi&&c.formats.length?` · ${c.formats.join(' / ')}`:''}</div>
