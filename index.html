@@ -445,6 +445,26 @@ function renderFormModal(){
     </div>`;
   }
 
+  const inscriptionBlock=!S.editMode&&c.formats.length>0?`
+    <div style="border-top:1px solid #e5e5e0;margin-top:1rem;padding-top:1rem">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer;margin-bottom:10px">
+        <input type="checkbox" ${S.createInscription?'checked':''} onchange="S.createInscription=this.checked;render()"/>
+        M'inscrire à cette course
+      </label>
+      ${S.createInscription?`
+        <input type="text" placeholder="Ton pseudo *" value="${S.createPseudo}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
+        <p style="font-size:11px;color:#aaa;margin-bottom:6px">Sélectionne tes formats</p>
+        <div class="fmt-row">
+          ${c.formats.map(f=>`<button class="fb${S.createFmts.includes(f)?' on':''}" onclick="S.createFmts.includes('${f.replace(/'/g,"\\'")}') ? S.createFmts=S.createFmts.filter(x=>x!=='${f.replace(/'/g,"\\'")}') : S.createFmts.push('${f.replace(/'/g,"\\'")}');render()">${f}</button>`).join('')}
+        </div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:11px;font-style:italic;color:#aaa;margin-top:8px;cursor:pointer">
+          <input type="checkbox" ${S.createObjectif?'checked':''} onchange="S.createObjectif=this.checked"/>
+          Ceci est mon objectif principal
+        </label>
+      `:''}
+    </div>
+  `:'';
+
   return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
     <div class="mhdr">
       <h2>${S.editMode?'Modifier la course':'Nouvelle course'}</h2>
@@ -462,25 +482,7 @@ function renderFormModal(){
     <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${c.comment}</textarea></div>
     <div class="frow"><label>Site internet</label><input type="url" value="${c.site}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
     <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
-    ${!S.editMode&&c.formats.length>0?`
-      <div style="border-top:1px solid #e5e5e0;margin-top:1rem;padding-top:1rem">
-        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer;margin-bottom:10px">
-          <input type="checkbox" ${S.createInscription?'checked':''} onchange="S.createInscription=this.checked;render()"/>
-          M'inscrire à cette course
-        </label>
-        ${S.createInscription?`
-          <input type="text" placeholder="Ton pseudo *" value="${S.createPseudo}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
-          <p style="font-size:11px;color:#aaa;margin-bottom:6px">Sélectionne tes formats</p>
-          <div class="fmt-row">
-             ${c.formats.map(f=>`<button class="fb${S.createFmts.includes(f)?' on':''}" onclick="S.createFmts.includes('${f.replace(/'/g,"\\'")}') ? S.createFmts=S.createFmts.filter(x=>x!=='${f.replace(/'/g,"\\'")}') : S.createFmts.push('${f.replace(/'/g,"\\'")}');render()">${f}</button>`).join('')}
-          </div>
-          <label style="display:flex;align-items:center;gap:8px;font-size:11px;font-style:italic;color:#aaa;margin-top:8px;cursor:pointer">
-            <input type="checkbox" ${S.createObjectif?'checked':''} onchange="S.createObjectif=this.checked"/>
-            Ceci est mon objectif principal
-          </label>
-          `:''}
-        `:''}
-      </div>
+    ${inscriptionBlock}
     <div class="mftr">
       <button class="btn-sec" onclick="${S.editMode?`openEdit(${c.id})`:'closeModal()'}">Annuler</button>
       <button class="btn-pri" onclick="saveForm()">${S.editMode?'Enregistrer':'Créer la course'}</button>
