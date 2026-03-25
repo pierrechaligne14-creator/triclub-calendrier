@@ -1,690 +1,1086 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>TriClub Calendrier</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f8f8f6;color:#1a1a1a;min-height:100vh}
-.app{max-width:860px;margin:0 auto;padding:0 16px 3rem}
-.hdr{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 0 1rem;border-bottom:1px solid #e5e5e0;margin-bottom:0,75rem}
-.hdr-title{font-size:20px;font-weight:600;color:#1a1a1a}
-.hdr-title em{font-style:normal;color:#C10076}
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
-.cal-nav button{background:none;border:1px solid #e5e5e0;border-radius:8px;padding:5px 14px;cursor:pointer;font-size:14px;color:#1a1a1a;background:#fff}
-.cal-nav button:hover{background:#f0f0ee}
-.cal-month{font-size:16px;font-weight:600;color:#1a1a1a}
-.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:1px;background:#e5e5e0;border-radius:12px;overflow:hidden;border:1px solid #e5e5e0}
-.dh{background:#f0f0ee;text-align:center;padding:6px 0;font-size:11px;font-weight:600;color:#888;letter-spacing:.05em}
-.dc{background:#fff;min-height:88px;padding:5px;cursor:pointer;transition:background .1s}
-.dc:hover{background:#FDF0FA}
-.dc.om{background:#fafaf8}
-.dc.om .dn{color:#ccc}
-.dc.td .dn{background:#C10076;color:#fff;border-radius:50%}
-.dn{font-size:12px;font-weight:500;color:#888;width:22px;height:22px;display:flex;align-items:center;justify-content:center;margin-bottom:3px}
-.pill{border-radius:4px;padding:2px 5px;font-size:10px;font-weight:600;margin-bottom:2px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
-.pill:hover{opacity:.75}
-.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:1rem}
-.leg-item{border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500}
-.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);display:flex;align-items:flex-start;justify-content:center;z-index:1000;padding:2rem 1rem;overflow-y:auto}
-.modal{background:#fff;border-radius:16px;border:1px solid #e5e5e0;padding:1.5rem;width:100%;max-width:500px;margin:auto}
-.mhdr{display:flex;align-items:flex-start;gap:8px;margin-bottom:1.25rem}
-.mhdr h2{font-size:17px;font-weight:600;color:#1a1a1a;flex:1;line-height:1.3}
-.mcls{background:none;border:none;cursor:pointer;font-size:24px;color:#aaa;line-height:1;padding:0 4px;flex-shrink:0}
-.mcls:hover{color:#1a1a1a}
-.sec{margin-bottom:1rem}
-.sec-lbl{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.tag{display:inline-block;border-radius:8px;padding:3px 10px;font-size:12px;font-weight:500;margin:0 3px 3px 0}
-.lnk{display:inline-flex;align-items:center;gap:5px;border:1px solid #e5e5e0;border-radius:8px;padding:5px 12px;font-size:13px;color:#555;text-decoration:none;margin:0 5px 5px 0;background:#fff}
-.lnk:hover{background:#f0f0ee}
-.lnk-wa{display:inline-flex;align-items:center;gap:6px;border:none;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;color:#fff;text-decoration:none;margin:0 5px 5px 0;background:#25D366}
-.lnk-wa:hover{background:#1da851}
-.pchip{background:#f5f5f2;border:1px solid #e5e5e0;border-radius:99px;padding:4px 10px;font-size:12px;display:inline-flex;align-items:center;gap:5px;margin:0 4px 4px 0;color:#1a1a1a}
-.pchip strong{font-weight:600}
-.pchip .psub{color:#888;font-size:11px}
-.pchip .pdel{background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;padding:0 0 0 2px;line-height:1}
-.pchip .pdel:hover{color:#e24b4a}
-.add-box{background:#f5f5f2;border-radius:8px;padding:12px;margin-top:8px}
-.add-lbl{font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-.add-box input[type=text]{width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px}
-.fmt-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
-.fb{border:1px solid #e5e5e0;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#1a1a1a;transition:all .15s}
-.fb:hover{background:#f0f0ee}
-.fb.on{border:2px solid #C10076;background:#E1F5EE;color:#7A0050;padding:4px 11px;font-weight:600}
-.fb.on::before{content:"✓ ";font-size:11px}
-.fb-edit{border:1px solid #e5e5e0;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;background:#fff;color:#1a1a1a;transition:all .15s}
-.fb-edit:hover{background:#f0f0ee}
-.fb-edit.on{border:2px solid #C10076;background:#E1F5EE;color:#7A0050;padding:4px 11px;font-weight:600}
-.fb-edit.on::before{content:"✓ ";font-size:11px}
-.btn-join{width:100%;background:#C10076;color:#fff;border:none;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer}
-.btn-join:hover{background:#9A005C}
-.btn-join:disabled{opacity:.4;cursor:default}
-.mftr{display:flex;gap:8px;justify-content:flex-end;padding-top:1rem;border-top:1px solid #e5e5e0;margin-top:1rem;flex-wrap:wrap;align-items:center}
-.mftr-left{margin-right:auto}
-.btn-del{background:none;border:1px solid #f09595;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;color:#a32d2d}
-.btn-del:hover{background:#fcebeb}
-.btn-sec{background:none;border:1px solid #e5e5e0;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;color:#1a1a1a;background:#fff}
-.btn-sec:hover{background:#f0f0ee}
-.btn-pri{background:#C10076;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;cursor:pointer}
-.btn-pri:hover{background:#9A005C}
-.btn-edit{background:#fff;border:1px solid #e5e5e0;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;color:#1a1a1a;display:inline-flex;align-items:center;gap:5px}
-.btn-edit:hover{background:#f0f0ee}
-.frow{margin-bottom:11px}
-.frow label{display:block;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.frow input,.frow select,.frow textarea{width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a}
-.frow textarea{resize:vertical;min-height:60px}
-.r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sport-badge{display:inline-flex;align-items:center;border-radius:8px;padding:3px 10px;font-size:13px;font-weight:600}
-.cmmt{font-size:13px;color:#666;font-style:italic;line-height:1.5;background:#f5f5f2;border-radius:8px;padding:8px 10px}
-.edit-banner{background:#f5f5f2;border-radius:8px;padding:6px 10px;font-size:12px;color:#888;margin-bottom:1rem;text-align:center}
-.dist-fmt-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:8px}
-.dist-fmt-row input{flex:1;border:1px solid #e5e5e0;border-radius:8px;padding:6px 10px;font-size:13px;font-family:inherit;background:#fff;color:#1a1a1a}
-.dist-fmt-row button{background:#C10076;color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0}
-.fmt-hint{font-size:11px;color:#aaa;margin-bottom:6px}
-.field-error{border-color:#e24b4a !important;background:#fff8f8 !important}
-.error-msg{font-size:11px;color:#e24b4a;margin-top:3px;display:block}
-.fmt-error{font-size:11px;color:#e24b4a;margin-bottom:4px;display:block}
-.loading{text-align:center;padding:3rem;color:#aaa;font-size:14px}
-.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:200;opacity:0;transition:opacity .3s}
-.toast.show{opacity:1}
-@media(max-width:580px){.dc{min-height:60px;padding:3px}.pill{font-size:9px}.r2{grid-template-columns:1fr}.app{padding:0 8px 3rem}}
-.view-switch{display:flex;gap:2px}
-.vs-btn{background:none;border:none;cursor:pointer;padding:5px 10px;font-size:13px;color:#aaa;border-radius:6px;display:flex;align-items:center;gap:5px;font-family:inherit}
-.vs-btn.active{color:#1a1a1a;background:#f0f0ee}
-.list-filters{display:flex;gap:6px;align-items:center;margin-bottom:1.5rem;flex-wrap:nowrap}
-.fsel{border:1px solid #e5e5e0;background:#fff;color:#888;font-size:12px;font-family:inherit;border-radius:20px;padding:5px 10px;cursor:pointer;appearance:none;-webkit-appearance:none}
-.fsel.on{color:#1a1a1a;border-color:#aaa;font-weight:500}
-.search-wrap{margin-left:auto;position:relative;flex-shrink:0}
-.list-search{border:1px solid #e5e5e0;border-radius:20px;padding:5px 10px 5px 28px;font-size:12px;font-family:inherit;background:#fff;color:#1a1a1a;width:130px}
-.srch-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;color:#aaa;pointer-events:none}
-.date-row{display:flex;align-items:center;gap:12px;margin:1.25rem 0 4px}
-.date-line{flex:1;height:1px;background:#e5e5e0}
-.date-lbl{font-size:11px;font-weight:600;color:#aaa;letter-spacing:.05em;white-space:nowrap}
-.ev-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0ee;cursor:pointer}
-.ev-item:last-child{border-bottom:none}
-.ev-item:hover .ev-title{color:#C10076}
-.sbar{width:3px;height:34px;border-radius:99px;flex-shrink:0}
-.ev-info{flex:1;min-width:0}
-.ev-title{font-size:13px;font-weight:500;color:#1a1a1a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .15s}
-.ev-sub{font-size:11px;color:#aaa;margin-top:1px}
-.ev-fmts{display:flex;gap:3px;flex-shrink:0;flex-wrap:wrap;max-width:100px;justify-content:flex-end}
-.ev-nb{font-size:12px;color:#aaa;flex-shrink:0;min-width:24px;text-align:right}
-.ev-detail{background:#f8f8f6;border-radius:8px;padding:12px;margin:4px 0 8px}
-.det-parts{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin-bottom:10px}
-.det-fmt-lbl{font-size:11px;font-weight:600;margin-bottom:5px}
-.det-plist{border-left:2px solid;padding-left:8px;display:flex;flex-direction:column;gap:3px}
-.det-pname{font-size:12px;color:#1a1a1a}
-.det-actions{display:flex;gap:6px}
-.det-btn{font-size:12px;border:1px solid #e5e5e0;border-radius:6px;padding:4px 10px;background:#fff;cursor:pointer;color:#666}
-.det-btn:hover{background:#f0f0ee}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TriClub Calendrier</title>
+  <!-- Librairie Supabase pour la base de données -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    /* =============================================
+       RESET & BASE
+    ============================================= */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8f8f6; color: #1a1a1a; min-height: 100vh; }
+    .app { max-width: 860px; margin: 0 auto; padding: 0 16px 3rem; }
+
+    /* =============================================
+       HEADER
+    ============================================= */
+    .hdr { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0 1rem; border-bottom: 1px solid #e5e5e0; margin-bottom: 0.75rem; }
+    .hdr-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
+    .hdr-title em { font-style: normal; color: #C10076; } /* Couleur principale du club */
+
+    /* =============================================
+       TOGGLE VUE CALENDRIER / LISTE
+    ============================================= */
+    .view-switch { display: flex; gap: 2px; }
+    .vs-btn { background: none; border: none; cursor: pointer; padding: 5px 10px; font-size: 13px; color: #aaa; border-radius: 6px; display: flex; align-items: center; gap: 5px; font-family: inherit; }
+    .vs-btn.active { color: #1a1a1a; background: #f0f0ee; }
+
+    /* =============================================
+       NAVIGATION CALENDRIER MENSUEL
+    ============================================= */
+    .cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+    .cal-nav button { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 14px; cursor: pointer; font-size: 14px; color: #1a1a1a; }
+    .cal-nav button:hover { background: #f0f0ee; }
+    .cal-month { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+
+    /* =============================================
+       GRILLE DU CALENDRIER
+    ============================================= */
+    .grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: #e5e5e0; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e0; }
+    .dh { background: #f0f0ee; text-align: center; padding: 6px 0; font-size: 11px; font-weight: 600; color: #888; letter-spacing: .05em; } /* En-têtes jours */
+    .dc { background: #fff; min-height: 88px; padding: 5px; cursor: pointer; transition: background .1s; } /* Cellule jour */
+    .dc:hover { background: #FDF0FA; } /* Survol rose très clair (couleur club) */
+    .dc.om { background: #fafaf8; } /* Jours hors mois courant */
+    .dc.om .dn { color: #ccc; }
+    .dc.td .dn { background: #C10076; color: #fff; border-radius: 50%; } /* Aujourd'hui */
+    .dn { font-size: 12px; font-weight: 500; color: #888; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px; } /* Numéro du jour */
+
+    /* Pills d'événements dans les cellules du calendrier */
+    .pill { border-radius: 4px; padding: 2px 5px; font-size: 10px; font-weight: 600; margin-bottom: 2px; cursor: pointer; white-space: normal; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 1.3; }
+    .pill:hover { opacity: .75; }
+
+    /* Légende des sports (sert aussi de filtre cliquable) */
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 1rem; }
+    .leg-item { border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 500; }
+
+    /* =============================================
+       MODALES (overlay + conteneur)
+    ============================================= */
+    .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); display: flex; align-items: flex-start; justify-content: center; z-index: 1000; padding: 2rem 1rem; overflow-y: auto; }
+    .modal { background: #fff; border-radius: 16px; border: 1px solid #e5e5e0; padding: 1.5rem; width: 100%; max-width: 500px; margin: auto; }
+    .mhdr { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 1.25rem; } /* Header de modale */
+    .mhdr h2 { font-size: 17px; font-weight: 600; color: #1a1a1a; flex: 1; line-height: 1.3; }
+    .mcls { background: none; border: none; cursor: pointer; font-size: 24px; color: #aaa; line-height: 1; padding: 0 4px; flex-shrink: 0; } /* Bouton fermer × */
+    .mcls:hover { color: #1a1a1a; }
+    .sec { margin-bottom: 1rem; } /* Section dans une modale */
+    .sec-lbl { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+
+    /* Tags de formats dans les modales */
+    .tag { display: inline-block; border-radius: 8px; padding: 3px 10px; font-size: 12px; font-weight: 500; margin: 0 3px 3px 0; }
+
+    /* Liens site web et WhatsApp */
+    .lnk { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 12px; font-size: 13px; color: #555; text-decoration: none; margin: 0 5px 5px 0; background: #fff; }
+    .lnk:hover { background: #f0f0ee; }
+    .lnk-wa { display: inline-flex; align-items: center; gap: 6px; border: none; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: #fff; text-decoration: none; margin: 0 5px 5px 0; background: #25D366; } /* Bouton WhatsApp vert officiel */
+    .lnk-wa:hover { background: #1da851; }
+
+    /* Chips participants (ancienne version, non utilisée activement) */
+    .pchip { background: #f5f5f2; border: 1px solid #e5e5e0; border-radius: 99px; padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; margin: 0 4px 4px 0; color: #1a1a1a; }
+    .pchip strong { font-weight: 600; }
+    .pchip .psub { color: #888; font-size: 11px; }
+    .pchip .pdel { background: none; border: none; cursor: pointer; color: #ccc; font-size: 14px; padding: 0 0 0 2px; line-height: 1; }
+    .pchip .pdel:hover { color: #e24b4a; }
+
+    /* =============================================
+       BLOC D'INSCRIPTION (dans la modale détail)
+    ============================================= */
+    .add-box { background: #f5f5f2; border-radius: 8px; padding: 12px; margin-top: 8px; }
+    .add-lbl { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px; }
+    .add-box input[type=text] { width: 100%; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 10px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; margin-bottom: 8px; }
+
+    /* Boutons de sélection de format (inscription) */
+    .fmt-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    .fb { border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: #1a1a1a; transition: all .15s; }
+    .fb:hover { background: #f0f0ee; }
+    .fb.on { border: 2px solid #C10076; background: #FCE4F3; color: #7A0050; padding: 4px 11px; font-weight: 600; } /* Format sélectionné */
+    .fb.on::before { content: "✓ "; font-size: 11px; }
+
+    /* Boutons de format dans le formulaire de création */
+    .fb-edit { border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: #1a1a1a; transition: all .15s; }
+    .fb-edit:hover { background: #f0f0ee; }
+    .fb-edit.on { border: 2px solid #C10076; background: #FCE4F3; color: #7A0050; padding: 4px 11px; font-weight: 600; }
+    .fb-edit.on::before { content: "✓ "; font-size: 11px; }
+
+    /* =============================================
+       BOUTONS PRINCIPAUX
+    ============================================= */
+    .btn-join { width: 100%; background: #C10076; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-join:hover { background: #9A005C; }
+    .btn-join:disabled { opacity: .4; cursor: default; }
+    .mftr { display: flex; gap: 8px; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid #e5e5e0; margin-top: 1rem; flex-wrap: wrap; align-items: center; } /* Footer de modale */
+    .mftr-left { margin-right: auto; }
+    .btn-del { background: none; border: 1px solid #f09595; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #a32d2d; } /* Bouton supprimer */
+    .btn-del:hover { background: #fcebeb; }
+    .btn-sec { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #1a1a1a; } /* Bouton secondaire */
+    .btn-sec:hover { background: #f0f0ee; }
+    .btn-pri { background: #C10076; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; } /* Bouton primaire couleur club */
+    .btn-pri:hover { background: #9A005C; }
+    .btn-edit { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #1a1a1a; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-edit:hover { background: #f0f0ee; }
+
+    /* =============================================
+       FORMULAIRE DE CRÉATION / ÉDITION
+    ============================================= */
+    .frow { margin-bottom: 11px; } /* Ligne de formulaire */
+    .frow label { display: block; font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .frow input, .frow select, .frow textarea { width: 100%; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 10px; font-size: 14px; font-family: inherit; background: #fff; color: #1a1a1a; }
+    .frow textarea { resize: vertical; min-height: 60px; }
+    .r2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } /* Grille 2 colonnes */
+    .sport-badge { display: inline-flex; align-items: center; border-radius: 8px; padding: 3px 10px; font-size: 13px; font-weight: 600; }
+    .cmmt { font-size: 13px; color: #666; font-style: italic; line-height: 1.5; background: #f5f5f2; border-radius: 8px; padding: 8px 10px; } /* Bloc commentaire */
+    .edit-banner { background: #f5f5f2; border-radius: 8px; padding: 6px 10px; font-size: 12px; color: #888; margin-bottom: 1rem; text-align: center; }
+
+    /* Ajout de format libre (distance + D+) */
+    .dist-fmt-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
+    .dist-fmt-row input { flex: 1; border: 1px solid #e5e5e0; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: inherit; background: #fff; color: #1a1a1a; }
+    .dist-fmt-row button { background: #C10076; color: #fff; border: none; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+
+    /* =============================================
+       VALIDATION DES FORMULAIRES
+    ============================================= */
+    .fmt-hint { font-size: 11px; color: #aaa; margin-bottom: 6px; }
+    .field-error { border-color: #e24b4a !important; background: #fff8f8 !important; } /* Champ en erreur */
+    .error-msg { font-size: 11px; color: #e24b4a; margin-top: 3px; display: block; }
+    .fmt-error { font-size: 11px; color: #e24b4a; margin-bottom: 4px; display: block; }
+
+    /* =============================================
+       FEEDBACK UTILISATEUR
+    ============================================= */
+    .loading { text-align: center; padding: 3rem; color: #aaa; font-size: 14px; }
+    .toast { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: #fff; padding: 10px 20px; border-radius: 99px; font-size: 13px; font-weight: 500; z-index: 200; opacity: 0; transition: opacity .3s; }
+    .toast.show { opacity: 1; }
+
+    /* =============================================
+       VUE LISTE — FILTRES
+    ============================================= */
+    .list-filters { display: flex; gap: 6px; align-items: center; margin-bottom: 1.5rem; flex-wrap: nowrap; }
+    .fsel { border: 1px solid #e5e5e0; background: #fff; color: #888; font-size: 12px; font-family: inherit; border-radius: 20px; padding: 5px 10px; cursor: pointer; appearance: none; -webkit-appearance: none; }
+    .fsel.on { color: #1a1a1a; border-color: #aaa; font-weight: 500; } /* Filtre actif */
+    .search-wrap { margin-left: auto; position: relative; flex-shrink: 0; }
+    .list-search { border: 1px solid #e5e5e0; border-radius: 20px; padding: 5px 10px 5px 28px; font-size: 12px; font-family: inherit; background: #fff; color: #1a1a1a; width: 130px; }
+    .srch-ico { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); width: 13px; height: 13px; color: #aaa; pointer-events: none; }
+
+    /* =============================================
+       VUE LISTE — LIGNES D'ÉVÉNEMENTS
+    ============================================= */
+    .date-row { display: flex; align-items: center; gap: 12px; margin: 1.25rem 0 4px; } /* Séparateur de date */
+    .date-line { flex: 1; height: 1px; background: #e5e5e0; }
+    .date-lbl { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: .05em; white-space: nowrap; }
+    .ev-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0ee; cursor: pointer; }
+    .ev-item:last-child { border-bottom: none; }
+    .ev-item:hover .ev-title { color: #C10076; }
+    .sbar { width: 3px; height: 34px; border-radius: 99px; flex-shrink: 0; } /* Barre colorée sport */
+    .ev-info { flex: 1; min-width: 0; }
+    .ev-title { font-size: 13px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
+    .ev-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
+    .ev-fmts { display: flex; gap: 3px; flex-shrink: 0; flex-wrap: wrap; max-width: 100px; justify-content: flex-end; }
+    .ev-nb { font-size: 12px; color: #aaa; flex-shrink: 0; min-width: 24px; text-align: right; } /* Compteur inscrits */
+
+    /* Détail dépliable dans la vue liste */
+    .ev-detail { background: #f8f8f6; border-radius: 8px; padding: 12px; margin: 4px 0 8px; }
+    .det-parts { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; margin-bottom: 10px; }
+    .det-fmt-lbl { font-size: 11px; font-weight: 600; margin-bottom: 5px; }
+    .det-plist { border-left: 2px solid; padding-left: 8px; display: flex; flex-direction: column; gap: 3px; }
+    .det-pname { font-size: 12px; color: #1a1a1a; }
+    .det-actions { display: flex; gap: 6px; }
+    .det-btn { font-size: 12px; border: 1px solid #e5e5e0; border-radius: 6px; padding: 4px 10px; background: #fff; cursor: pointer; color: #666; }
+    .det-btn:hover { background: #f0f0ee; }
+
+    /* =============================================
+       RESPONSIVE MOBILE
+    ============================================= */
+    @media(max-width: 580px) {
+      .dc { min-height: 60px; padding: 3px; }
+      .pill { font-size: 9px; }
+      .r2 { grid-template-columns: 1fr; }
+      .app { padding: 0 8px 3rem; }
+    }
+  </style>
 </head>
 <body>
+
+<!-- Conteneur principal de l'application -->
 <div class="app" id="root"><div class="loading">Chargement...</div></div>
+<!-- Notification toast (messages de confirmation/erreur) -->
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = 'https://dmswinbptxrosuccxapr.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3dpbmJwdHhyb3N1Y2N4YXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzEwMTEsImV4cCI6MjA4OTQwNzAxMX0.AodlEsQr96FYtq0RTxMpo2j6dvZBdAtRZJ5-Pnh-WC8';
+  /* =============================================
+     CONFIGURATION SUPABASE
+     Remplacer ces valeurs par celles de votre projet
+  ============================================= */
+  const SUPABASE_URL = 'https://dmswinbptxrosuccxapr.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3dpbmJwdHhyb3N1Y2N4YXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzEwMTEsImV4cCI6MjA4OTQwNzAxMX0.AodlEsQr96FYtq0RTxMpo2j6dvZBdAtRZJ5-Pnh-WC8';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const { createClient } = supabase;
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+  /* =============================================
+     CONSTANTES — SPORTS, FORMATS, LABELS
+  ============================================= */
 
-const SP=[
-  {id:'tri', l:'Triathlon',    c:'#085041',bg:'#E1F5EE',mid:'#5DCAA5',multi:true},
-  {id:'dua', l:'Duathlon',     c:'#712B13',bg:'#FAECE7',mid:'#F0997B',multi:true},
-  {id:'aqua',l:'Aquathlon',    c:'#085041',bg:'#9FE1CB',mid:'#1D9E75',multi:true},
-  {id:'swim',l:'Swimrun',      c:'#3C3489',bg:'#EEEDFE',mid:'#AFA9EC',multi:true},
-  {id:'run', l:'Course à pied',c:'#633806',bg:'#FAEEDA',mid:'#EF9F27',multi:false},
-  {id:'velo',l:'Vélo',         c:'#0C447C',bg:'#E6F1FB',mid:'#85B7EB',multi:false},
-  {id:'nat', l:'Natation',     c:'#3C3489',bg:'#EEEDFE',mid:'#AFA9EC',multi:false},
-  {id:'trail',l:'Trail',       c:'#27500A',bg:'#EAF3DE',mid:'#97C459',multi:false},
-];
-const FMT_MULTI=['XS','S','M','L','XL'];
-const DAYS=['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'];
-const MONTHS=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+  // Définition des sports : id, label, couleur foncée (c), couleur claire (bg), couleur mid-tone (mid), multi-format (XS-XL) ou distance libre
+  const SP = [
+    { id: 'tri',   l: 'Triathlon',     c: '#085041', bg: '#E1F5EE', mid: '#5DCAA5', multi: true  },
+    { id: 'dua',   l: 'Duathlon',      c: '#712B13', bg: '#FAECE7', mid: '#F0997B', multi: true  },
+    { id: 'aqua',  l: 'Aquathlon',     c: '#085041', bg: '#9FE1CB', mid: '#1D9E75', multi: true  },
+    { id: 'swim',  l: 'Swimrun',       c: '#3C3489', bg: '#EEEDFE', mid: '#AFA9EC', multi: true  },
+    { id: 'run',   l: 'Course à pied', c: '#633806', bg: '#FAEEDA', mid: '#EF9F27', multi: false },
+    { id: 'velo',  l: 'Vélo',          c: '#0C447C', bg: '#E6F1FB', mid: '#85B7EB', multi: false },
+    { id: 'nat',   l: 'Natation',      c: '#3C3489', bg: '#EEEDFE', mid: '#AFA9EC', multi: false },
+    { id: 'trail', l: 'Trail',         c: '#27500A', bg: '#EAF3DE', mid: '#97C459', multi: false },
+  ];
 
-function sp(id){return SP.find(s=>s.id===id)||SP[0]}
-function fmtDate(d){
-  const y=d.getFullYear();
-  const m=String(d.getMonth()+1).padStart(2,'0');
-  const day=String(d.getDate()).padStart(2,'0');
-  return `${y}-${m}-${day}`;
-}
-function sameDay(a,b){return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate()}
+  const FMT_MULTI = ['XS', 'S', 'M', 'L', 'XL']; // Formats standard pour sports multi
+  const DAYS = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  const MONTHS = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
 
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
-}
+  /* =============================================
+     UTILITAIRES
+  ============================================= */
 
-const today=new Date();
-let S={
-  year:today.getFullYear(),month:today.getMonth(),
-  courses:[],
-  view:null,editing:null,editMode:false,
-  newPseudo:'',newFmts:[],newObjectif:false,
-  tmpDist:'',tmpDplus:'',
-  loading:false,
-  errors:{}, partErrors:{},
-  vue:'cal',
-  listExpanded:{},
-  filterMois:'',
-  filterSport:'',
-  filterFormat:'',
-  filterSearch:'',
-  filterCalSport:[],
-  createPseudo:'',
-  createFmts:[],
-  createObjectif:false,
-  createInscription:false,
-};
+  // Retourne l'objet sport par son id
+  function sp(id) { return SP.find(s => s.id === id) || SP[0]; }
 
-async function loadCourses(){
-  S.loading=true;render();
-  const {data:courses,error}=await db.from('courses').select('*').order('date');
-  if(error){showToast('Erreur de chargement');S.loading=false;render();return;}
-  const {data:ants}=await db.from('participants').select('*');
-  S.courses=courses.map(c=>({
-    ...c,
-    formats:c.formats||[],
-    participants:(ants||[]).filter(p=>p.course_id===c.id).map(p=>({...p,fmts:p.fmts||[],objectif:p.objectif||false}))
-  }));
-  S.loading=false;render();
-}
-
-function getCourses(date){return S.courses.filter(c=>sameDay(new Date(c.date),date))}
-
-function openDetail(id){
-  S.view='detail';S.editMode=false;
-  S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===id)));
-  S.newPseudo='';S.partErrors={};
-  const courseFormats=S.editing.formats||[];
-  S.newFmts=courseFormats.length===1?[...courseFormats]:[];
-  render();
-}
-function openAdd(dateStr){
-  S.view='form';S.editMode=false;
-  S.editing={id:null,titre:'',date:dateStr,lieu:'',sport:'tri',formats:[],site:'',wa:'',comment:'',participants:[]};
-  S.tmpDist='';S.tmpDplus='';
-  render();
-}
-function openEdit(id){
-  S.view='form';S.editMode=true;
-  S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===id)));
-  S.tmpDist='';S.tmpDplus='';
-  render();
-}
-function closeModal(){S.view=null;S.editing=null;S.editMode=false;render()}
-
-async function saveForm(){
-  const c=S.editing;
-  const errors={};
-  if(!c.titre.trim()) errors.titre='Nom obligatoire';
-  if(!c.lieu.trim()) errors.lieu='Lieu obligatoire';
-  if(c.formats.length===0) errors.formats='Au moins un format obligatoire';
-  if(Object.keys(errors).length>0){S.errors=errors;render();return;}
-  S.errors={};
-  const payload={titre:c.titre,date:c.date,lieu:c.lieu,sport:c.sport,formats:c.formats,site:c.site,wa:c.wa,comment:c.comment};
-  if(c.id){
-    const {error}=await db.from('courses').update(payload).eq('id',c.id);
-    if(error){showToast('Erreur lors de la modification');return;}
-    showToast('Course modifiée ✓');
-  } else {
-    const {error}=await db.from('courses').insert(payload);
-    if(error){showToast('Erreur lors de la création');return;}
-    showToast('Course ajoutée ✓');
+  // Formate une date JS en string YYYY-MM-DD
+  function fmtDate(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
   }
-  closeModal();
-  const newCourse=await db.from('courses').select('*').order('created_at',{ascending:false}).limit(1).single();
-  if(S.createInscription&&S.createPseudo.trim()&&S.createFmts.length>0&&newCourse.data){
-    await db.from('participants').insert({course_id:newCourse.data.id,pseudo:S.createPseudo.trim(),fmts:S.createFmts,objectif:S.createObjectif||false});
+
+  // Vérifie si deux dates sont le même jour
+  function sameDay(a, b) {
+    return a.getFullYear() === b.getFullYear() &&
+           a.getMonth() === b.getMonth() &&
+           a.getDate() === b.getDate();
   }
-  S.createPseudo='';S.createFmts=[];S.createObjectif=false;S.createInscription=false;
-  await loadCourses();
-}
-async function delCourse(id){
-  const {error}=await db.from('courses').delete().eq('id',id);
-  if(error){showToast('Erreur lors de la suppression');return;}
-  showToast('Course supprimée');
-  closeModal();
-  await loadCourses();
-}
 
-function toggleFmt(f){
-  const c=S.editing;
-  c.formats=c.formats.includes(f)?c.formats.filter(x=>x!==f):[...c.formats,f];
-  render();
-}
-function addDistFmt(){
-  const dist=S.tmpDist.trim(),dplus=S.tmpDplus.trim();
-  if(!dist)return;
-  const label=dist+'km'+(dplus?' / D+'+dplus+'m':'');
-  if(!S.editing.formats.includes(label))S.editing.formats.push(label);
-  S.tmpDist='';S.tmpDplus='';
-  render();
-}
-function removeDistFmt(f){
-  S.editing.formats=S.editing.formats.filter(x=>x!==f);render();
-}
-function toggleNFmt(f){
-  S.newFmts=S.newFmts.includes(f)?S.newFmts.filter(x=>x!==f):[...S.newFmts,f];
-  render();
-}
+  // Affiche une notification temporaire en bas de l'écran
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2500);
+  }
 
-async function addParticipant(){
-  const pseudo=S.newPseudo.trim();
-  S.partErrors={};
-  if(!pseudo) S.partErrors.pseudo='Pseudo obligatoire';
-  if(S.newFmts.length===0) S.partErrors.fmts='Sélectionne au moins un format';
-  if(Object.keys(S.partErrors).length>0){render();return;}
-  const inserts=S.newFmts.map(f=>({course_id:S.editing.id,pseudo,fmts:[f],objectif:S.newObjectif||false}));
-  const {error}=await db.from('participants').insert(inserts);
-  if(error){showToast('Erreur lors de l\'inscription');return;}
-  showToast(`${pseudo} inscrit(e) ✓`);
-  S.newPseudo='';S.newFmts=[];S.newObjectif=false;
-  await loadCourses();
-  S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===S.editing.id)));
-  render();
-}
+  /* =============================================
+     ÉTAT GLOBAL DE L'APPLICATION
+     Toutes les données et l'état UI sont centralisés ici
+  ============================================= */
+  const today = new Date();
+  let S = {
+    // Navigation calendrier
+    year: today.getFullYear(),
+    month: today.getMonth(),
 
-async function removeParticipant(partId){
-  const {error}=await db.from('participants').delete().eq('id',partId);
-  if(error){showToast('Erreur');return;}
-  showToast('Désinscription effectuée');
-  await loadCourses();
-  S.editing=JSON.parse(JSON.stringify(S.courses.find(c=>c.id===S.editing.id)));
-  render();
-}
+    // Données chargées depuis Supabase
+    courses: [],
 
-function calCells(){
-  const {year,month}=S;
-  const first=new Date(year,month,1),last=new Date(year,month+1,0);
-  const dow=(first.getDay()+6)%7;
-  const cells=[];
-  for(let i=0;i<dow;i++)cells.push({d:new Date(year,month,1-dow+i),mine:false});
-  for(let d=1;d<=last.getDate();d++)cells.push({d:new Date(year,month,d),mine:true});
-  const rem=7-(cells.length%7);
-  if(rem<7)for(let i=1;i<=rem;i++)cells.push({d:new Date(year,month+1,i),mine:false});
-  return cells;
-}
+    // État des modales
+    view: null,        // 'detail' | 'form' | null
+    editing: null,     // Objet course en cours d'édition
+    editMode: false,   // true = modification, false = création
 
-function renderCal(){
-  const cells=calCells();
-  const hdrs=DAYS.map(d=>`<div class="dh">${d}</div>`).join('');
-  const dcs=cells.map(({d,mine})=>{
-    const cs=getCourses(d).filter(c=>S.filterCalSport.length===0||S.filterCalSport.includes(c.sport));
-    const isT=sameDay(d,today);
-    const ds=fmtDate(d);
-    const pills=cs.map(c=>{
-      const s=sp(c.sport);
-      const fmtCount={};
-      c.participants.forEach(p=>p.fmts.forEach(f=>{fmtCount[f]=(fmtCount[f]||0)+1}));
-      const fmtSummary=Object.entries(fmtCount).map(([f,n])=>`${n}×${f}`).join(' ');
-      const nb=c.participants.length;
-      return `<span class="pill" style="background:${s.bg};color:${s.c};white-space:normal;line-height:1.3;padding:3px 6px;font-size:11px" onclick="event.stopPropagation();openDetail(${c.id})">${c.titre}${c.participants.length?` (${c.participants.length})`:''}</span>`;
+    // Formulaire d'inscription (modale détail)
+    newPseudo: '',
+    newFmts: [],
+    newObjectif: false,
+
+    // Formulaire de création de formats libres (distance + D+)
+    tmpDist: '',
+    tmpDplus: '',
+
+    // Chargement
+    loading: false,
+
+    // Erreurs de validation
+    errors: {},
+    partErrors: {},
+
+    // Vue active : 'cal' = calendrier, 'list' = liste
+    vue: 'cal',
+
+    // État des lignes dépliées dans la vue liste
+    listExpanded: {},
+
+    // Filtres vue liste
+    filterMois: '',
+    filterSport: '',
+    filterFormat: '',
+    filterSearch: '',
+
+    // Filtre sport sur le calendrier (tableau pour multi-sélection)
+    filterCalSport: [],
+
+    // Inscription au moment de la création d'une course
+    createPseudo: '',
+    createFmts: [],
+    createObjectif: false,
+    createInscription: false,
+  };
+
+  /* =============================================
+     CHARGEMENT DES DONNÉES DEPUIS SUPABASE
+  ============================================= */
+
+  // Charge toutes les courses et leurs participants depuis la BDD
+  async function loadCourses() {
+    S.loading = true;
+    render();
+    const { data: courses, error } = await db.from('courses').select('*').order('date');
+    if (error) { showToast('Erreur de chargement'); S.loading = false; render(); return; }
+    const { data: ants } = await db.from('participants').select('*');
+    // Associe les participants à chaque course
+    S.courses = courses.map(c => ({
+      ...c,
+      formats: c.formats || [],
+      participants: (ants || [])
+        .filter(p => p.course_id === c.id)
+        .map(p => ({ ...p, fmts: p.fmts || [], objectif: p.objectif || false }))
+    }));
+    S.loading = false;
+    render();
+  }
+
+  // Retourne les courses d'une date donnée
+  function getCourses(date) {
+    return S.courses.filter(c => sameDay(new Date(c.date), date));
+  }
+
+  /* =============================================
+     GESTION DES MODALES
+  ============================================= */
+
+  // Ouvre la modale de détail d'une course
+  function openDetail(id) {
+    S.view = 'detail';
+    S.editMode = false;
+    S.editing = JSON.parse(JSON.stringify(S.courses.find(c => c.id === id)));
+    S.newPseudo = '';
+    S.partErrors = {};
+    // Pré-sélectionne le format si un seul disponible
+    const courseFormats = S.editing.formats || [];
+    S.newFmts = courseFormats.length === 1 ? [...courseFormats] : [];
+    render();
+  }
+
+  // Ouvre la modale de création d'une nouvelle course
+  function openAdd(dateStr) {
+    S.view = 'form';
+    S.editMode = false;
+    S.editing = { id: null, titre: '', date: dateStr, lieu: '', sport: 'tri', formats: [], site: '', wa: '', comment: '', participants: [] };
+    S.tmpDist = '';
+    S.tmpDplus = '';
+    render();
+  }
+
+  // Ouvre la modale de modification d'une course existante
+  function openEdit(id) {
+    S.view = 'form';
+    S.editMode = true;
+    S.editing = JSON.parse(JSON.stringify(S.courses.find(c => c.id === id)));
+    S.tmpDist = '';
+    S.tmpDplus = '';
+    render();
+  }
+
+  // Ferme toutes les modales
+  function closeModal() {
+    S.view = null;
+    S.editing = null;
+    S.editMode = false;
+    render();
+  }
+
+  /* =============================================
+     ACTIONS SUR LES COURSES (CRUD)
+  ============================================= */
+
+  // Sauvegarde une course (création ou modification) + inscription optionnelle
+  async function saveForm() {
+    const c = S.editing;
+    // Validation des champs obligatoires
+    const errors = {};
+    if (!c.titre.trim()) errors.titre = 'Nom obligatoire';
+    if (!c.lieu.trim()) errors.lieu = 'Lieu obligatoire';
+    if (c.formats.length === 0) errors.formats = 'Au moins un format obligatoire';
+    if (Object.keys(errors).length > 0) { S.errors = errors; render(); return; }
+    S.errors = {};
+
+    const payload = { titre: c.titre, date: c.date, lieu: c.lieu, sport: c.sport, formats: c.formats, site: c.site, wa: c.wa, comment: c.comment };
+
+    if (c.id) {
+      // Mise à jour d'une course existante
+      const { error } = await db.from('courses').update(payload).eq('id', c.id);
+      if (error) { showToast('Erreur lors de la modification'); return; }
+      showToast('Course modifiée ✓');
+    } else {
+      // Création d'une nouvelle course
+      const { error } = await db.from('courses').insert(payload);
+      if (error) { showToast('Erreur lors de la création'); return; }
+      showToast('Course ajoutée ✓');
+    }
+
+    closeModal();
+
+    // Si l'utilisateur a coché "M'inscrire", on inscrit avec les formats choisis
+    const newCourse = await db.from('courses').select('*').order('created_at', { ascending: false }).limit(1).single();
+    if (S.createInscription && S.createPseudo.trim() && S.createFmts.length > 0 && newCourse.data) {
+      await db.from('participants').insert({
+        course_id: newCourse.data.id,
+        pseudo: S.createPseudo.trim(),
+        fmts: S.createFmts,
+        objectif: S.createObjectif || false
+      });
+    }
+    // Réinitialisation du bloc d'inscription
+    S.createPseudo = '';
+    S.createFmts = [];
+    S.createObjectif = false;
+    S.createInscription = false;
+
+    await loadCourses();
+  }
+
+  // Supprime une course (les participants sont supprimés en cascade par Supabase)
+  async function delCourse(id) {
+    const { error } = await db.from('courses').delete().eq('id', id);
+    if (error) { showToast('Erreur lors de la suppression'); return; }
+    showToast('Course supprimée');
+    closeModal();
+    await loadCourses();
+  }
+
+  /* =============================================
+     GESTION DES FORMATS
+  ============================================= */
+
+  // Toggle un format dans le formulaire de création (XS/S/M/L/XL)
+  function toggleFmt(f) {
+    const c = S.editing;
+    c.formats = c.formats.includes(f) ? c.formats.filter(x => x !== f) : [...c.formats, f];
+    render();
+  }
+
+  // Ajoute un format libre (distance km + D+ optionnel) dans la course en édition
+  function addDistFmt() {
+    const dist = S.tmpDist.trim(), dplus = S.tmpDplus.trim();
+    if (!dist) return;
+    const label = dist + 'km' + (dplus ? ' / D+' + dplus + 'm' : '');
+    if (!S.editing.formats.includes(label)) S.editing.formats.push(label);
+    S.tmpDist = '';
+    S.tmpDplus = '';
+    render();
+  }
+
+  // Supprime un format libre de la course en édition
+  function removeDistFmt(f) {
+    S.editing.formats = S.editing.formats.filter(x => x !== f);
+    render();
+  }
+
+  // Toggle un format dans le formulaire d'inscription (modale détail)
+  function toggleNFmt(f) {
+    S.newFmts = S.newFmts.includes(f) ? S.newFmts.filter(x => x !== f) : [...S.newFmts, f];
+    render();
+  }
+
+  /* =============================================
+     GESTION DES PARTICIPANTS
+  ============================================= */
+
+  // Inscrit un participant à une course (une ligne par format en BDD)
+  async function addParticipant() {
+    const pseudo = S.newPseudo.trim();
+    S.partErrors = {};
+    if (!pseudo) S.partErrors.pseudo = 'Pseudo obligatoire';
+    if (S.newFmts.length === 0) S.partErrors.fmts = 'Sélectionne au moins un format';
+    if (Object.keys(S.partErrors).length > 0) { render(); return; }
+    // Crée une ligne par format sélectionné
+    const inserts = S.newFmts.map(f => ({
+      course_id: S.editing.id,
+      pseudo,
+      fmts: [f],
+      objectif: S.newObjectif || false
+    }));
+    const { error } = await db.from('participants').insert(inserts);
+    if (error) { showToast('Erreur lors de l\'inscription'); return; }
+    showToast(`${pseudo} inscrit(e) ✓`);
+    S.newPseudo = '';
+    S.newFmts = [];
+    S.newObjectif = false;
+    await loadCourses();
+    S.editing = JSON.parse(JSON.stringify(S.courses.find(c => c.id === S.editing.id)));
+    render();
+  }
+
+  // Désinscrit un participant (supprime sa ligne en BDD)
+  async function removeParticipant(partId) {
+    const { error } = await db.from('participants').delete().eq('id', partId);
+    if (error) { showToast('Erreur'); return; }
+    showToast('Désinscription effectuée');
+    await loadCourses();
+    S.editing = JSON.parse(JSON.stringify(S.courses.find(c => c.id === S.editing.id)));
+    render();
+  }
+
+  /* =============================================
+     RENDU DU CALENDRIER MENSUEL
+  ============================================= */
+
+  // Calcule les cellules du calendrier (42 cases = 6 semaines × 7 jours)
+  function calCells() {
+    const { year, month } = S;
+    const first = new Date(year, month, 1);
+    const last = new Date(year, month + 1, 0);
+    const dow = (first.getDay() + 6) % 7; // Décalage pour commencer lundi
+    const cells = [];
+    // Jours du mois précédent pour compléter la première semaine
+    for (let i = 0; i < dow; i++) cells.push({ d: new Date(year, month, 1 - dow + i), mine: false });
+    // Jours du mois courant
+    for (let d = 1; d <= last.getDate(); d++) cells.push({ d: new Date(year, month, d), mine: true });
+    // Jours du mois suivant pour compléter la dernière semaine
+    const rem = 7 - (cells.length % 7);
+    if (rem < 7) for (let i = 1; i <= rem; i++) cells.push({ d: new Date(year, month + 1, i), mine: false });
+    return cells;
+  }
+
+  // Génère le HTML de la grille calendrier
+  function renderCal() {
+    const cells = calCells();
+    const hdrs = DAYS.map(d => `<div class="dh">${d}</div>`).join('');
+    const dcs = cells.map(({ d, mine }) => {
+      // Filtre par sport si un filtre est actif
+      const cs = getCourses(d).filter(c => S.filterCalSport.length === 0 || S.filterCalSport.includes(c.sport));
+      const isT = sameDay(d, today);
+      const ds = fmtDate(d);
+      // Pill par course avec nom + compteur inscrits
+      const pills = cs.map(c => {
+        const s = sp(c.sport);
+        const fmtCount = {};
+        c.participants.forEach(p => p.fmts.forEach(f => { fmtCount[f] = (fmtCount[f] || 0) + 1; }));
+        const nb = c.participants.length;
+        return `<span class="pill" style="background:${s.bg};color:${s.c};white-space:normal;line-height:1.3;padding:3px 6px;font-size:11px" onclick="event.stopPropagation();openDetail(${c.id})">${c.titre}${nb ? ` (${nb})` : ''}</span>`;
+      }).join('');
+      return `<div class="dc${!mine ? ' om' : ''}${isT ? ' td' : ''}" onclick="openAdd('${ds}')"><div class="dn">${d.getDate()}</div>${pills}</div>`;
     }).join('');
-    return `<div class="dc${!mine?' om':''}${isT?' td':''}" onclick="openAdd('${ds}')"><div class="dn">${d.getDate()}</div>${pills}</div>`;
-  }).join('');
-  return `<div class="grid">${hdrs}${dcs}</div>`;
-}
-
-function renderDetailModal(){
-  const c=S.editing;if(!c)return'';
-  const s=sp(c.sport);
-  const dl=new Date(c.date).toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const fmtTags=c.formats.map(f=>`<span class="tag" style="background:${s.bg};color:${s.c}">${f}</span>`).join('');
-  const links=[
-    c.site?`<a class="lnk" href="${c.site}" target="_blank">🌐 Site web</a>`:'',
-    c.wa?`<a class="lnk-wa" href="${c.wa}" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>`:'',
-  ].join('');
-
-  const fmtMap={};
-  c.participants.forEach(p=>{
-    p.fmts.forEach(f=>{
-      if(!fmtMap[f])fmtMap[f]=[];
-      fmtMap[f].push(p);
-    });
-  });
- 
-  const cols=Object.entries(fmtMap).map(([fmt,parts])=>`
-    <div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:600;color:${s.c}">${fmt}</span>
-        <span style="font-size:11px;color:#aaa">${parts.length}</span>
-      </div>
-      <div style="border-left:2px solid ${s.bg};padding-left:10px;display:flex;flex-direction:column;gap:8px">
-        ${parts.map(p=>`
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;${p.objectif?'color:#C10076;font-weight:500;':''}">${p.pseudo}</span>
-            <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
-          </div>`).join('')}
-      </div>
-    </div>`).join('');
-  const participantsBlock=c.participants.length===0
-    ?'<span style="font-size:13px;color:#aaa">Aucun inscrit.</span>'
-    :`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px">${cols}</div>`;
-
-  const fmtBtns=c.formats.map(f=>{
-    const sel=S.newFmts.includes(f);
-    const fesc=f.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    return `<button class="fb${sel?' on':''}" onclick="toggleNFmt('${fesc}')">${f}</button>`;
-  }).join('');
-  const joinDisabled=(!S.newPseudo.trim()||S.newFmts.length===0)?'disabled':'';
-
-  return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
-    <div class="mhdr">
-      <span class="sport-badge" style="background:${s.bg};color:${s.c};flex-shrink:0">${s.l}</span>
-      <h2>${c.titre}</h2>
-      <button class="mcls" onclick="closeModal()">&#215;</button>
-    </div>
-    <div class="sec">
-      <div style="font-size:13px;color:#666;margin-bottom:6px">${dl} &nbsp;·&nbsp; ${c.lieu}</div>
-      <div>${fmtTags||'<span style="font-size:13px;color:#aaa">Aucun format renseigné</span>'}</div>
-    </div>
-    ${c.comment?`<div class="sec"><div class="cmmt">${c.comment}</div></div>`:''}
-    ${links?`<div class="sec">${links}</div>`:''}
-    <div class="sec">
-      <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
-        <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em">Participants</span>
-        <span style="font-size:13px;font-weight:500;color:#1a1a1a">${c.participants.length} inscrit${c.participants.length>1?'s':''}</span>
-      </div>
-      <div style="margin-bottom:12px">${participantsBlock}</div>
-      <div class="add-box">
-        <div class="add-lbl">Rejoindre cette course</div>
-        <input type="text" class="${S.partErrors&&S.partErrors.pseudo?'field-error':''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value;document.querySelector('.btn-join').disabled=!this.value.trim()||S.newFmts.length===0"/>
-        ${S.partErrors&&S.partErrors.pseudo?`<span class="error-msg">${S.partErrors.pseudo}</span>`:''}
-        ${c.formats.length
-          ?`<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
-            <div class="fmt-row">${fmtBtns}</div>
-            ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
-          :`<p class="fmt-hint">Aucun format défini pour cette course.</p>
-            ${S.partErrors&&S.partErrors.fmts?`<span class="fmt-error">${S.partErrors.fmts}</span>`:''}`
-        }
-        <label style="display:flex;align-items:center;gap:8px;font-size:8px;font-style:italic;color:var(--color-text-secondary);margin-bottom:8px;cursor:pointer">
-          <input type="checkbox" ${S.newObjectif?'checked':''} onchange="S.newObjectif=this.checked"/>
-          Ceci est mon objectif principal
-        </label>
-        <button class="btn-join" onclick="addParticipant()" ${joinDisabled}>
-          ${S.newFmts.length>0?`+ Inscrire (${S.newFmts.length} format${S.newFmts.length>1?'s':''})`:'+ Inscrire'}
-        </button>
-      </div>
-    </div>
-    <div class="mftr">
-      <div class="mftr-left"><button class="btn-del" onclick="delCourse(${c.id})">Supprimer</button></div>
-      <button class="btn-edit" onclick="openEdit(${c.id})">✎ Modifier</button>
-      <button class="btn-sec" onclick="closeModal()">Fermer</button>
-    </div>
-  </div></div>`;
-}
-
-function renderFormModal(){
-  const c=S.editing;if(!c)return'';
-  const multi=sp(c.sport).multi;
-  const sportOpts=SP.map(s=>`<option value="${s.id}"${c.sport===s.id?' selected':''}>${s.l}</option>`).join('');
-  let fmtField='';
-  if(multi){
-    const btns=FMT_MULTI.map(f=>`<button class="fb-edit${c.formats.includes(f)?' on':''}" onclick="toggleFmt('${f}')">${f}</button>`).join('');
-    fmtField=`<div class="frow"><label>Formats disponibles</label><div class="fmt-row">${btns}</div></div>`;
-  } else {
-    const existingFmts=c.formats.map(f=>{
-      const fesc=f.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-      return `<span class="tag" style="background:#f5f5f2;color:#1a1a1a;cursor:pointer;border:1px solid #e5e5e0" onclick="removeDistFmt('${fesc}')">${f} <span style="color:#a32d2d;font-size:11px">×</span></span>`;
-    }).join('');
-    fmtField=`<div class="frow">
-      <label>Formats disponibles</label>
-      ${c.formats.length?`<div style="margin-bottom:8px">${existingFmts}</div>`:'<p class="fmt-hint" style="margin-bottom:8px">Aucun format ajouté.</p>'}
-      <div class="dist-fmt-row">
-        <input type="number" min="0" placeholder="Distance (km)" value="${S.tmpDist}" oninput="S.tmpDist=this.value"/>
-        <input type="number" min="0" placeholder="D+ (m, optionnel)" value="${S.tmpDplus}" oninput="S.tmpDplus=this.value"/>
-        <button onclick="addDistFmt()">+ Ajouter</button>
-      </div>
-    </div>`;
+    return `<div class="grid">${hdrs}${dcs}</div>`;
   }
 
-  const inscriptionBlock=!S.editMode&&c.formats.length>0?`
-    <div style="border-top:1px solid #e5e5e0;margin-top:1rem;padding-top:1rem">
-      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer;margin-bottom:10px">
-        <input type="checkbox" ${S.createInscription?'checked':''} onchange="S.createInscription=this.checked;render()"/>
-        M'inscrire à cette course
-      </label>
-      ${S.createInscription?`
-        <input type="text" placeholder="Ton pseudo *" value="${S.createPseudo}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
-        <p style="font-size:11px;color:#aaa;margin-bottom:6px">Sélectionne tes formats</p>
-        <div class="fmt-row">
-          ${c.formats.map(f=>`<button class="fb${S.createFmts.includes(f)?' on':''}" onclick="S.createFmts.includes('${f.replace(/'/g,"\\'")}') ? S.createFmts=S.createFmts.filter(x=>x!=='${f.replace(/'/g,"\\'")}') : S.createFmts.push('${f.replace(/'/g,"\\'")}');render()">${f}</button>`).join('')}
-        </div>
-        <label style="display:flex;align-items:center;gap:8px;font-size:11px;font-style:italic;color:#aaa;margin-top:8px;cursor:pointer">
-          <input type="checkbox" ${S.createObjectif?'checked':''} onchange="S.createObjectif=this.checked"/>
-          Ceci est mon objectif principal
-        </label>
-      `:''}
-    </div>
-  `:'';
+  /* =============================================
+     RENDU DE LA MODALE DÉTAIL D'UNE COURSE
+  ============================================= */
+  function renderDetailModal() {
+    const c = S.editing;
+    if (!c) return '';
+    const s = sp(c.sport);
+    const dl = new Date(c.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
 
-  return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
-    <div class="mhdr">
-      <h2>${S.editMode?'Modifier la course':'Nouvelle course'}</h2>
-      <button class="mcls" onclick="closeModal()">&#215;</button>
-    </div>
-    ${S.editMode?`<div class="edit-banner">Modification de "${c.titre}"</div>`:''}
-    <div class="frow"><label>Nom de la course <span style="color:#e24b4a">*</span></label><input type="text" class="${S.errors&&S.errors.titre?'field-error':''}" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/>${S.errors&&S.errors.titre?`<span class="error-msg">${S.errors.titre}</span>`:''}</div>
-    <div class="r2">
-      <div class="frow"><label>Date</label><input type="date" value="${c.date}" onchange="S.editing.date=this.value"/></div>
-      <div class="frow"><label>Lieu <span style="color:#e24b4a">*</span></label><input type="text" class="${S.errors&&S.errors.lieu?'field-error':''}" value="${c.lieu}" oninput="S.editing.lieu=this.value" placeholder="Ville"/>${S.errors&&S.errors.lieu?`<span class="error-msg">${S.errors.lieu}</span>`:''}</div>
-    </div>
-    <div class="frow"><label>Sport</label><select onchange="S.editing.sport=this.value;S.editing.formats=[];S.tmpDist='';S.tmpDplus='';render()">${sportOpts}</select></div>
-    ${fmtField}
-    ${S.errors&&S.errors.formats?`<span class="fmt-error">${S.errors.formats}</span>`:''}
-    <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${c.comment}</textarea></div>
-    <div class="frow"><label>Site internet</label><input type="url" value="${c.site}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
-    <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
-    ${inscriptionBlock}
-    <div class="mftr">
-      <button class="btn-sec" onclick="${S.editMode?`openDetail(${c.id})`:'closeModal()'}">Annuler</button>
-      <button class="btn-pri" onclick="saveForm()">${S.editMode?'Enregistrer':'Créer la course'}</button>
-    </div>
-  </div></div>`;
-}
-  
-function renderList(){
-  const moisDispo=[...new Set(S.courses.map(c=>c.date.slice(0,7)))].sort();
-  const moisOpts=moisDispo.map(m=>{
-    const [y,mo]=m.split('-');
-    return `<option value="${m}">${MONTHS[parseInt(mo)-1]} ${y}</option>`;
-  }).join('');
-  const sportOpts=SP.map(s=>`<option value="${s.id}">${s.l}</option>`).join('');
-  const allFmts=[...new Set(S.courses.flatMap(c=>c.formats))].sort();
-  const fmtOpts=allFmts.map(f=>`<option value="${f}">${f}</option>`).join('');
+    // Tags des formats disponibles
+    const fmtTags = c.formats.map(f => `<span class="tag" style="background:${s.bg};color:${s.c}">${f}</span>`).join('');
 
-  let courses=[...S.courses].sort((a,b)=>a.date.localeCompare(b.date));
-  if(S.filterMois) courses=courses.filter(c=>c.date.startsWith(S.filterMois));
-  if(S.filterSport) courses=courses.filter(c=>c.sport===S.filterSport);
-  if(S.filterFormat) courses=courses.filter(c=>c.formats.includes(S.filterFormat));
-  if(S.filterSearch){
-    const q=S.filterSearch.toLowerCase();
-    courses=courses.filter(c=>
-      c.titre.toLowerCase().includes(q)||
-      c.lieu.toLowerCase().includes(q)||
-      c.participants.some(p=>p.pseudo.toLowerCase().includes(q))
-    );
-  }
+    // Liens externes
+    const links = [
+      c.site ? `<a class="lnk" href="${c.site}" target="_blank">🌐 Site web</a>` : '',
+      c.wa ? `<a class="lnk-wa" href="${c.wa}" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` : '',
+    ].join('');
 
-  const byDate={};
-  courses.forEach(c=>{
-    if(!byDate[c.date])byDate[c.date]=[];
-    byDate[c.date].push(c);
-  });
-
-  const rows=Object.entries(byDate).map(([date,cs])=>{
-    const d=new Date(date);
-    const dlbl=d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'}).toUpperCase();
-    const evItems=cs.map(c=>{
-      const s=sp(c.sport);
-      const expanded=S.listExpanded[c.id];
-      const fmtPills=c.formats.map(f=>`<span class="fmt-pill" style="background:${s.bg};color:${s.c};font-size:11px;font-weight:500;border-radius:99px;padding:2px 7px">${f}</span>`).join('');
-
-      const fmtMap={};
-      c.participants.forEach(p=>p.fmts.forEach(f=>{
-        if(!fmtMap[f])fmtMap[f]=[];
+    // Groupement des participants par format (une ligne BDD = un participant + un format)
+    const fmtMap = {};
+    c.participants.forEach(p => {
+      p.fmts.forEach(f => {
+        if (!fmtMap[f]) fmtMap[f] = [];
         fmtMap[f].push(p);
-      }));
-      const partCols=Object.entries(fmtMap).map(([fmt,parts])=>`
-        <div>
-          <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
-          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>`).join('')}</div>
-        </div>`).join('');
+      });
+    });
 
-      const detail=expanded?`
-        <div class="ev-detail">
-          ${c.comment?`<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${c.comment}</div>`:''}
-          ${c.participants.length?`<div class="det-parts">${partCols}</div>`:'<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
-          <div class="det-actions">
-            ${c.site?`<a class="det-btn lnk" href="${c.site}" target="_blank">🌐 Site web</a>`:''}
-            ${c.wa?`<a class="det-btn lnk-wa" href="${c.wa}" target="_blank" style="background:#25D366;color:#fff;border-color:#25D366">WhatsApp</a>`:''}
-            <button class="det-btn" onclick="openEdit(${c.id})">✎ Modifier</button>
-            <button class="det-btn" onclick="openDetail(${c.id})">+ Rejoindre</button>
+    // Colonnes participants par format avec trait vertical coloré
+    const cols = Object.entries(fmtMap).map(([fmt, parts]) => `
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:13px;font-weight:600;color:${s.c}">${fmt}</span>
+          <span style="font-size:11px;color:#aaa">${parts.length}</span>
+        </div>
+        <div style="border-left:2px solid ${s.bg};padding-left:10px;display:flex;flex-direction:column;gap:8px">
+          ${parts.map(p => `
+            <div style="display:flex;align-items:center;gap:8px">
+              <!-- Nom en rose si objectif principal -->
+              <span style="font-size:13px;${p.objectif ? 'color:#C10076;font-weight:500;' : ''}">${p.pseudo}</span>
+              <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    const participantsBlock = c.participants.length === 0
+      ? '<span style="font-size:13px;color:#aaa">Aucun inscrit.</span>'
+      : `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:16px">${cols}</div>`;
+
+    // Boutons de sélection de format pour l'inscription
+    const fmtBtns = c.formats.map(f => {
+      const sel = S.newFmts.includes(f);
+      const fesc = f.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      return `<button class="fb${sel ? ' on' : ''}" onclick="toggleNFmt('${fesc}')">${f}</button>`;
+    }).join('');
+
+    // Bouton inscrire désactivé si pseudo vide ou aucun format sélectionné
+    const joinDisabled = (!S.newPseudo.trim() || S.newFmts.length === 0) ? 'disabled' : '';
+
+    return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+      <div class="mhdr">
+        <span class="sport-badge" style="background:${s.bg};color:${s.c};flex-shrink:0">${s.l}</span>
+        <h2>${c.titre}</h2>
+        <button class="mcls" onclick="closeModal()">&#215;</button>
+      </div>
+      <!-- Infos principales : date, lieu, formats -->
+      <div class="sec">
+        <div style="font-size:13px;color:#666;margin-bottom:6px">${dl} &nbsp;·&nbsp; ${c.lieu}</div>
+        <div>${fmtTags || '<span style="font-size:13px;color:#aaa">Aucun format renseigné</span>'}</div>
+      </div>
+      <!-- Commentaire si renseigné -->
+      ${c.comment ? `<div class="sec"><div class="cmmt">${c.comment}</div></div>` : ''}
+      <!-- Liens externes si renseignés -->
+      ${links ? `<div class="sec">${links}</div>` : ''}
+      <!-- Section participants -->
+      <div class="sec">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+          <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em">Participants</span>
+          <span style="font-size:13px;font-weight:500;color:#1a1a1a">${c.participants.length} inscrit${c.participants.length > 1 ? 's' : ''}</span>
+        </div>
+        <div style="margin-bottom:12px">${participantsBlock}</div>
+        <!-- Formulaire d'inscription -->
+        <div class="add-box">
+          <div class="add-lbl">Rejoindre cette course</div>
+          <input type="text" class="${S.partErrors && S.partErrors.pseudo ? 'field-error' : ''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value;document.querySelector('.btn-join').disabled=!this.value.trim()||S.newFmts.length===0"/>
+          ${S.partErrors && S.partErrors.pseudo ? `<span class="error-msg">${S.partErrors.pseudo}</span>` : ''}
+          ${c.formats.length
+            ? `<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
+               <div class="fmt-row">${fmtBtns}</div>
+               ${S.partErrors && S.partErrors.fmts ? `<span class="fmt-error">${S.partErrors.fmts}</span>` : ''}`
+            : `<p class="fmt-hint">Aucun format défini pour cette course.</p>
+               ${S.partErrors && S.partErrors.fmts ? `<span class="fmt-error">${S.partErrors.fmts}</span>` : ''}`
+          }
+          <!-- Case à cocher objectif principal -->
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;font-style:italic;color:#888;margin-bottom:8px;cursor:pointer">
+            <input type="checkbox" ${S.newObjectif ? 'checked' : ''} onchange="S.newObjectif=this.checked"/>
+            Ceci est mon objectif principal
+          </label>
+          <button class="btn-join" onclick="addParticipant()" ${joinDisabled}>
+            ${S.newFmts.length > 0 ? `+ Inscrire (${S.newFmts.length} format${S.newFmts.length > 1 ? 's' : ''})` : '+ Inscrire'}
+          </button>
+        </div>
+      </div>
+      <!-- Actions : supprimer, modifier, fermer -->
+      <div class="mftr">
+        <div class="mftr-left"><button class="btn-del" onclick="delCourse(${c.id})">Supprimer</button></div>
+        <button class="btn-edit" onclick="openEdit(${c.id})">✎ Modifier</button>
+        <button class="btn-sec" onclick="closeModal()">Fermer</button>
+      </div>
+    </div></div>`;
+  }
+
+  /* =============================================
+     RENDU DU FORMULAIRE CRÉATION / MODIFICATION
+  ============================================= */
+  function renderFormModal() {
+    const c = S.editing;
+    if (!c) return '';
+    const multi = sp(c.sport).multi;
+    const sportOpts = SP.map(s => `<option value="${s.id}"${c.sport === s.id ? ' selected' : ''}>${s.l}</option>`).join('');
+
+    // Champ formats : boutons XS-XL pour sports multi, ou saisie distance+D+ pour les autres
+    let fmtField = '';
+    if (multi) {
+      const btns = FMT_MULTI.map(f => `<button class="fb-edit${c.formats.includes(f) ? ' on' : ''}" onclick="toggleFmt('${f}')">${f}</button>`).join('');
+      fmtField = `<div class="frow"><label>Formats disponibles</label><div class="fmt-row">${btns}</div></div>`;
+    } else {
+      const existingFmts = c.formats.map(f => {
+        const fesc = f.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+        return `<span class="tag" style="background:#f5f5f2;color:#1a1a1a;cursor:pointer;border:1px solid #e5e5e0" onclick="removeDistFmt('${fesc}')">${f} <span style="color:#a32d2d;font-size:11px">×</span></span>`;
+      }).join('');
+      fmtField = `<div class="frow">
+        <label>Formats disponibles</label>
+        ${c.formats.length ? `<div style="margin-bottom:8px">${existingFmts}</div>` : '<p class="fmt-hint" style="margin-bottom:8px">Aucun format ajouté.</p>'}
+        <div class="dist-fmt-row">
+          <input type="number" min="0" placeholder="Distance (km)" value="${S.tmpDist}" oninput="S.tmpDist=this.value"/>
+          <input type="number" min="0" placeholder="D+ (m, optionnel)" value="${S.tmpDplus}" oninput="S.tmpDplus=this.value"/>
+          <button onclick="addDistFmt()">+ Ajouter</button>
+        </div>
+      </div>`;
+    }
+
+    // Bloc d'inscription optionnel (seulement en création, seulement si des formats sont définis)
+    const inscriptionBlock = !S.editMode && c.formats.length > 0 ? `
+      <div style="border-top:1px solid #e5e5e0;margin-top:1rem;padding-top:1rem">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#666;cursor:pointer;margin-bottom:10px">
+          <input type="checkbox" ${S.createInscription ? 'checked' : ''} onchange="S.createInscription=this.checked;render()"/>
+          M'inscrire à cette course
+        </label>
+        ${S.createInscription ? `
+          <input type="text" placeholder="Ton pseudo *" value="${S.createPseudo}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
+          <p style="font-size:11px;color:#aaa;margin-bottom:6px">Sélectionne tes formats</p>
+          <div class="fmt-row">
+            ${c.formats.map(f => `<button class="fb${S.createFmts.includes(f) ? ' on' : ''}" onclick="S.createFmts.includes('${f.replace(/'/g, "\\'")}') ? S.createFmts=S.createFmts.filter(x=>x!=='${f.replace(/'/g, "\\'")}') : S.createFmts.push('${f.replace(/'/g, "\\'")}');render()">${f}</button>`).join('')}
           </div>
-        </div>`:''
+          <label style="display:flex;align-items:center;gap:8px;font-size:11px;font-style:italic;color:#aaa;margin-top:8px;cursor:pointer">
+            <input type="checkbox" ${S.createObjectif ? 'checked' : ''} onchange="S.createObjectif=this.checked"/>
+            Ceci est mon objectif principal
+          </label>
+        ` : ''}
+      </div>
+    ` : '';
+
+    return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
+      <div class="mhdr">
+        <h2>${S.editMode ? 'Modifier la course' : 'Nouvelle course'}</h2>
+        <button class="mcls" onclick="closeModal()">&#215;</button>
+      </div>
+      ${S.editMode ? `<div class="edit-banner">Modification de "${c.titre}"</div>` : ''}
+      <!-- Champ nom (obligatoire) -->
+      <div class="frow">
+        <label>Nom de la course <span style="color:#e24b4a">*</span></label>
+        <input type="text" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/>
+        ${S.errors && S.errors.titre ? `<span class="error-msg">${S.errors.titre}</span>` : ''}
+      </div>
+      <!-- Date et lieu sur 2 colonnes -->
+      <div class="r2">
+        <div class="frow"><label>Date</label><input type="date" value="${c.date}" onchange="S.editing.date=this.value"/></div>
+        <div class="frow">
+          <label>Lieu <span style="color:#e24b4a">*</span></label>
+          <input type="text" class="${S.errors && S.errors.lieu ? 'field-error' : ''}" value="${c.lieu}" oninput="S.editing.lieu=this.value" placeholder="Ville"/>
+          ${S.errors && S.errors.lieu ? `<span class="error-msg">${S.errors.lieu}</span>` : ''}
+        </div>
+      </div>
+      <!-- Sélection du sport (change le type de formats disponibles) -->
+      <div class="frow">
+        <label>Sport</label>
+        <select onchange="S.editing.sport=this.value;S.editing.formats=[];S.tmpDist='';S.tmpDplus='';render()">${sportOpts}</select>
+      </div>
+      <!-- Formats selon le type de sport -->
+      ${fmtField}
+      ${S.errors && S.errors.formats ? `<span class="fmt-error">${S.errors.formats}</span>` : ''}
+      <!-- Champs optionnels -->
+      <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${c.comment}</textarea></div>
+      <div class="frow"><label>Site internet</label><input type="url" value="${c.site}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
+      <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
+      <!-- Inscription optionnelle à la création -->
+      ${inscriptionBlock}
+      <!-- Boutons d'action -->
+      <div class="mftr">
+        <button class="btn-sec" onclick="${S.editMode ? `openDetail(${c.id})` : 'closeModal()'}">Annuler</button>
+        <button class="btn-pri" onclick="saveForm()">${S.editMode ? 'Enregistrer' : 'Créer la course'}</button>
+      </div>
+    </div></div>`;
+  }
+
+  /* =============================================
+     RENDU DE LA VUE LISTE
+  ============================================= */
+  function renderList() {
+    // Construction des options des filtres dynamiquement depuis les données
+    const moisDispo = [...new Set(S.courses.map(c => c.date.slice(0, 7)))].sort();
+    const moisOpts = moisDispo.map(m => {
+      const [y, mo] = m.split('-');
+      return `<option value="${m}">${MONTHS[parseInt(mo) - 1]} ${y}</option>`;
+    }).join('');
+    const sportOpts = SP.map(s => `<option value="${s.id}">${s.l}</option>`).join('');
+    const allFmts = [...new Set(S.courses.flatMap(c => c.formats))].sort();
+    const fmtOpts = allFmts.map(f => `<option value="${f}">${f}</option>`).join('');
+
+    // Application des filtres
+    let courses = [...S.courses].sort((a, b) => a.date.localeCompare(b.date));
+    if (S.filterMois) courses = courses.filter(c => c.date.startsWith(S.filterMois));
+    if (S.filterSport) courses = courses.filter(c => c.sport === S.filterSport);
+    if (S.filterFormat) courses = courses.filter(c => c.formats.includes(S.filterFormat));
+    if (S.filterSearch) {
+      const q = S.filterSearch.toLowerCase();
+      // Recherche sur le titre, le lieu et les noms de participants
+      courses = courses.filter(c =>
+        c.titre.toLowerCase().includes(q) ||
+        c.lieu.toLowerCase().includes(q) ||
+        c.participants.some(p => p.pseudo.toLowerCase().includes(q))
+      );
+    }
+
+    // Groupement par date
+    const byDate = {};
+    courses.forEach(c => {
+      if (!byDate[c.date]) byDate[c.date] = [];
+      byDate[c.date].push(c);
+    });
+
+    // Génération des lignes
+    const rows = Object.entries(byDate).map(([date, cs]) => {
+      const d = new Date(date);
+      const dlbl = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
+
+      const evItems = cs.map(c => {
+        const s = sp(c.sport);
+        const expanded = S.listExpanded[c.id]; // État déplié/replié
+        const fmtPills = c.formats.map(f => `<span class="fmt-pill" style="background:${s.bg};color:${s.c};font-size:11px;font-weight:500;border-radius:99px;padding:2px 7px">${f}</span>`).join('');
+
+        // Groupement des participants par format pour l'affichage déplié
+        const fmtMap = {};
+        c.participants.forEach(p => p.fmts.forEach(f => {
+          if (!fmtMap[f]) fmtMap[f] = [];
+          fmtMap[f].push(p);
+        }));
+        const partCols = Object.entries(fmtMap).map(([fmt, parts]) => `
+          <div>
+            <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
+            <div class="det-plist" style="border-color:${s.bg}">
+              ${parts.map(p => `<span style="font-size:13px;${p.objectif ? 'color:#C10076;font-weight:500;' : ''}">${p.pseudo}</span>`).join('')}
+            </div>
+          </div>`).join('');
+
+        // Détail déplié (participants + actions)
+        const detail = expanded ? `
+          <div class="ev-detail">
+            ${c.comment ? `<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${c.comment}</div>` : ''}
+            ${c.participants.length ? `<div class="det-parts">${partCols}</div>` : '<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
+            <div class="det-actions">
+              ${c.site ? `<a class="det-btn lnk" href="${c.site}" target="_blank">🌐 Site web</a>` : ''}
+              ${c.wa ? `<a class="det-btn lnk-wa" href="${c.wa}" target="_blank" style="background:#25D366;color:#fff;border-color:#25D366">WhatsApp</a>` : ''}
+              <button class="det-btn" onclick="openEdit(${c.id})">✎ Modifier</button>
+              <button class="det-btn" onclick="openDetail(${c.id})">+ Rejoindre</button>
+            </div>
+          </div>` : '';
+
+        return `
+          <!-- Ligne cliquable pour déplier/replier -->
+          <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
+            <div class="sbar" style="background:${s.mid}"></div>
+            <div class="ev-info">
+              <div class="ev-title">${c.titre} <span style="font-size:11px;font-weight:400;color:#aaa">· ${s.l}</span></div>
+              <div class="ev-sub">${c.lieu}${!sp(c.sport).multi && c.formats.length ? ` · ${c.formats.join(' / ')}` : ''}</div>
+            </div>
+            <div class="ev-fmts">${fmtPills}</div>
+            <div class="ev-nb">${c.participants.length}</div>
+          </div>
+          ${detail}`;
+      }).join('');
 
       return `
-        <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
-          <div class="sbar" style="background:${s.mid}"></div>
-          <div class="ev-info">
-            <div class="ev-title">${c.titre} <span style="font-size:11px;font-weight:400;color:#aaa">· ${s.l}</span></div>
-            <div class="ev-sub">${c.lieu}${!sp(c.sport).multi&&c.formats.length?` · ${c.formats.join(' / ')}`:''}</div>
-          </div>
-          <div class="ev-fmts">${fmtPills}</div>
-          <div class="ev-nb">${c.participants.length}</div>
-        </div>
-        ${detail}`;
+        <div class="date-row"><span class="date-lbl">${dlbl}</span><div class="date-line"></div></div>
+        ${evItems}`;
     }).join('');
 
     return `
-      <div class="date-row"><span class="date-lbl">${dlbl}</span><div class="date-line"></div></div>
-      ${evItems}`;
-  }).join('');
-
-  return `
-    <div class="list-filters">
-      <select class="fsel${S.filterMois?' on':''}" data-filter="mois" onchange="S.filterMois=this.value;renderKeepFocus()">
-        <option value="">Mois</option>${moisOpts}
-      </select>
-      <select class="fsel${S.filterSport?' on':''}" data-filter="sport" onchange="S.filterSport=this.value;renderKeepFocus()">
-        <option value="">Sport</option>${sportOpts}
-      </select>
-      <select class="fsel${S.filterFormat?' on':''}" data-filter="format" onchange="S.filterFormat=this.value;renderKeepFocus()">
-        <option value="">Format</option>${fmtOpts}
-      </select>
-      <div class="search-wrap">
-        <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
-        <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderKeepFocus()"/>
-      </div>
-      ${S.filterMois||S.filterSport||S.filterFormat||S.filterSearch
-        ?`<button onclick="S.filterMois='';S.filterSport='';S.filterFormat='';S.filterSearch='';render()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#aaa;white-space:nowrap;padding:4px 6px;font-family:inherit">× Réinitialiser</button>`
-        :''}
-    </div>
-    ${rows||'<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Aucune course trouvée.</div>'}
-  `;
-}
-function renderKeepFocus(){
-  const vals={mois:S.filterMois,sport:S.filterSport,format:S.filterFormat,search:S.filterSearch};
-  render();
-  document.querySelectorAll('.fsel').forEach(sel=>{
-    sel.value=vals[sel.dataset.filter]||'';
-  });
-  const input=document.querySelector('.list-search');
-  if(input){
-    const pos=input.value.length;
-    input.value=vals.search;
-    input.focus();
-    input.setSelectionRange(pos,pos);
-  }
-}
-function render(){
-  const el=document.getElementById('root');if(!el)return;
-  if(S.loading){el.innerHTML='<div class="loading">Chargement...</div>';return;}
-  el.innerHTML=`
-    <div class="hdr">
-      <div class="hdr-title" onclick="S.vue='cal';render()" style="cursor:pointer">Tri<em>Club</em> Calendrier</div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <div class="view-switch">
-          <button class="vs-btn${S.vue==='cal'?' active':''}" onclick="S.vue='cal';render()">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
-            Calendrier
-          </button>
-          <button class="vs-btn${S.vue==='list'?' active':''}" onclick="S.vue='list';render()">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
-            Liste
-          </button>
+      <!-- Barre de filtres -->
+      <div class="list-filters">
+        <select class="fsel${S.filterMois ? ' on' : ''}" data-filter="mois" onchange="S.filterMois=this.value;renderKeepFocus()">
+          <option value="">Mois</option>${moisOpts}
+        </select>
+        <select class="fsel${S.filterSport ? ' on' : ''}" data-filter="sport" onchange="S.filterSport=this.value;renderKeepFocus()">
+          <option value="">Sport</option>${sportOpts}
+        </select>
+        <select class="fsel${S.filterFormat ? ' on' : ''}" data-filter="format" onchange="S.filterFormat=this.value;renderKeepFocus()">
+          <option value="">Format</option>${fmtOpts}
+        </select>
+        <div class="search-wrap">
+          <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
+          <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderKeepFocus()"/>
         </div>
-        <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
+        <!-- Bouton réinitialiser visible seulement si un filtre est actif -->
+        ${S.filterMois || S.filterSport || S.filterFormat || S.filterSearch
+          ? `<button onclick="S.filterMois='';S.filterSport='';S.filterFormat='';S.filterSearch='';render()" style="background:none;border:none;cursor:pointer;font-size:12px;color:#aaa;white-space:nowrap;padding:4px 6px;font-family:inherit">× Réinitialiser</button>`
+          : ''}
       </div>
-    </div>
-    <p style="font-size:12px;color:#888;line-height:1.6;padding:4px 0 4px;border-bottom:1px solid #e5e5e0;margin-bottom:1rem">
-       Calendrier partagé du club — chacun peut ajouter une course et s'inscrire. Indique ton <strong style="color:#C10076">Prénom Nom</strong> complet pour que tout le monde se retrouve. On compte sur la bienveillance de chacun pour garder ça propre et utile pour tous !
-    </p>
-   
-    ${S.vue==='cal'?`
-      <div class="cal-nav">
-        <button onclick="prevMonth()">&#8592;</button>
-        <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
-        <button onclick="nextMonth()">&#8594;</button>
-      </div>
-      ${renderCal()}
-      <div class="legend">
-        ${SP.map(s=>`
-          <span class="leg-item"
-            style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport.includes(s.id)?s.c:'transparent'};transition:border .15s"
-            onclick="S.filterCalSport.includes('${s.id}')?S.filterCalSport=S.filterCalSport.filter(x=>x!=='${s.id}'):S.filterCalSport.push('${s.id}');render()">
-            ${s.l}
-          </span>`).join('')}
-        ${S.filterCalSport.length?`<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>`:''}
-      </div>
-    `:renderList()}
-    ${S.view==='detail'?renderDetailModal():''}
-    ${S.view==='form'?renderFormModal():''}
-  `;
-  document.querySelectorAll('.fsel').forEach(sel=>{
-    if(sel.dataset.filter==='mois') sel.value=S.filterMois;
-    if(sel.dataset.filter==='sport') sel.value=S.filterSport;
-    if(sel.dataset.filter==='format') sel.value=S.filterFormat;
-  });
-}
+      ${rows || '<div style="text-align:center;padding:2rem;color:#aaa;font-size:14px">Aucune course trouvée.</div>'}
+    `;
+  }
 
-function prevMonth(){S.month===0?(S.month=11,S.year--):S.month--;render()}
-function nextMonth(){S.month===11?(S.month=0,S.year++):S.month++;render()}
-
-window.openDetail=openDetail;window.openAdd=openAdd;window.openEdit=openEdit;
-window.closeModal=closeModal;
-window.toggleFmt=toggleFmt;window.toggleNFmt=toggleNFmt;
-window.addDistFmt=addDistFmt;window.removeDistFmt=removeDistFmt;
-window.addParticipant=addParticipant;window.removeParticipant=removeParticipant;
-window.saveForm=saveForm;window.delCourse=delCourse;
-window.prevMonth=prevMonth;window.nextMonth=nextMonth;
-window.S=S;
-
-loadCourses();
-  
-// Swipe mobile pour changer de mois
-(function(){
-  let startX=0, startY=0;
-  const el=document.getElementById('root');
-  el.addEventListener('touchstart',e=>{
-    startX=e.touches[0].clientX;
-    startY=e.touches[0].clientY;
-  },{passive:true});
-  el.addEventListener('touchend',e=>{
-    const dx=e.changedTouches[0].clientX-startX;
-    const dy=e.changedTouches[0].clientY-startY;
-    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.5){
-      if(dx<0) nextMonth(); else prevMonth();
+  /* =============================================
+     RENDU AVEC CONSERVATION DU FOCUS (vue liste)
+     Évite que la barre de recherche perde le focus à chaque frappe
+  ============================================= */
+  function renderKeepFocus() {
+    const vals = { mois: S.filterMois, sport: S.filterSport, format: S.filterFormat, search: S.filterSearch };
+    render();
+    // Remet les valeurs des selects après le re-render
+    document.querySelectorAll('.fsel').forEach(sel => {
+      sel.value = vals[sel.dataset.filter] || '';
+    });
+    // Remet le focus et la position du curseur dans la barre de recherche
+    const input = document.querySelector('.list-search');
+    if (input) {
+      const pos = input.value.length;
+      input.value = vals.search;
+      input.focus();
+      input.setSelectionRange(pos, pos);
     }
-  },{passive:true});
-})();
+  }
+
+  /* =============================================
+     FONCTION PRINCIPALE DE RENDU
+     Reconstruit tout le DOM à chaque changement d'état
+  ============================================= */
+  function render() {
+    const el = document.getElementById('root');
+    if (!el) return;
+    // Affiche le loader pendant le chargement initial
+    if (S.loading) { el.innerHTML = '<div class="loading">Chargement...</div>'; return; }
+
+    el.innerHTML = `
+      <!-- HEADER : titre + toggle vue + bouton nouvelle course -->
+      <div class="hdr">
+        <div class="hdr-title" onclick="S.vue='cal';render()" style="cursor:pointer">Tri<em>Club</em> Calendrier</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <!-- Toggle Calendrier / Liste -->
+          <div class="view-switch">
+            <button class="vs-btn${S.vue === 'cal' ? ' active' : ''}" onclick="S.vue='cal';render()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+              Calendrier
+            </button>
+            <button class="vs-btn${S.vue === 'list' ? ' active' : ''}" onclick="S.vue='list';render()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="4" x2="15" y2="4"/><line x1="1" y1="8" x2="15" y2="8"/><line x1="1" y1="12" x2="15" y2="12"/></svg>
+              Liste
+            </button>
+          </div>
+          <button class="btn-pri" onclick="openAdd('${fmtDate(today)}')">+ Nouvelle course</button>
+        </div>
+      </div>
+
+      <!-- Message de présentation et instructions -->
+      <p style="font-size:12px;color:#888;line-height:1.6;padding:4px 0 4px;border-bottom:1px solid #e5e5e0;margin-bottom:1rem">
+        Calendrier partagé du club — chacun peut ajouter une course et s'inscrire. Indique ton <strong style="color:#C10076">Prénom Nom</strong> complet pour que tout le monde se retrouve. On compte sur la bienveillance de chacun pour garder ça propre et utile pour tous !
+      </p>
+
+      <!-- Vue principale : calendrier ou liste selon S.vue -->
+      ${S.vue === 'cal' ? `
+        <!-- Navigation mois -->
+        <div class="cal-nav">
+          <button onclick="prevMonth()">&#8592;</button>
+          <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
+          <button onclick="nextMonth()">&#8594;</button>
+        </div>
+        <!-- Grille du calendrier -->
+        ${renderCal()}
+        <!-- Légende des sports (cliquable pour filtrer) -->
+        <div class="legend">
+          ${SP.map(s => `
+            <span class="leg-item"
+              style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport.includes(s.id) ? s.c : 'transparent'};transition:border .15s"
+              onclick="S.filterCalSport.includes('${s.id}')?S.filterCalSport=S.filterCalSport.filter(x=>x!=='${s.id}'):S.filterCalSport.push('${s.id}');render()">
+              ${s.l}
+            </span>`).join('')}
+          ${S.filterCalSport.length ? `<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>` : ''}
+        </div>
+      ` : renderList()}
+
+      <!-- Modales (affichées par-dessus le contenu) -->
+      ${S.view === 'detail' ? renderDetailModal() : ''}
+      ${S.view === 'form' ? renderFormModal() : ''}
+    `;
+
+    // Synchronise les valeurs des selects après chaque render (évite la perte de valeur)
+    document.querySelectorAll('.fsel').forEach(sel => {
+      if (sel.dataset.filter === 'mois') sel.value = S.filterMois;
+      if (sel.dataset.filter === 'sport') sel.value = S.filterSport;
+      if (sel.dataset.filter === 'format') sel.value = S.filterFormat;
+    });
+  }
+
+  /* =============================================
+     NAVIGATION ENTRE LES MOIS
+  ============================================= */
+  function prevMonth() { S.month === 0 ? (S.month = 11, S.year--) : S.month--; render(); }
+  function nextMonth() { S.month === 11 ? (S.month = 0, S.year++) : S.month++; render(); }
+
+  /* =============================================
+     GÉNÉRATION DU MESSAGE COACH WHATSAPP
+     Génère un message avec les inscrits du week-end à venir
+  ============================================= */
+  function openWhatsAppCoach() {
+    const now = new Date();
+    const day = now.getDay();
+    // Calcul du prochain samedi et dimanche
+    const diffSam = day === 6 ? 0 : day === 0 ? 6 : 6 - day;
+    const diffDim = day === 0 ? 0 : 7 - day;
+    const sam = new Date(now); sam.setDate(now.getDate() + diffSam); sam.setHours(0, 0, 0, 0);
+    const dim = new Date(now); dim.setDate(now.getDate() + diffDim); dim.setHours(23, 59, 59, 999);
+
+    // Filtre les courses du week-end avec au moins un inscrit
+    const courses = S.courses.filter(c => {
+      const d = new Date(c.date);
+      return d >= sam && d <= dim && c.participants.length > 0;
+    }).sort((a, b) => a.date.localeCompare(b.date));
+
+    if (courses.length === 0) { showToast('Aucune course ce week-end'); return; }
+
+    // Construction du message
+    const blocs = [];
+    courses.forEach(c => {
+      const d = new Date(c.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      const parObjectif = c.participants.filter(p => p.objectif);
+      const parAutres = c.participants.filter(p => !p.objectif);
+      let bloc = `🏁 *${c.titre}* — ${c.lieu} (${d})\n`;
+      if (parObjectif.length) bloc += `⭐ Objectif principal : ${parObjectif.map(p => p.pseudo).join(', ')}\n`;
+      if (parAutres.length) bloc += `👟 Également au départ : ${parAutres.map(p => p.pseudo).join(', ')}\n`;
+      blocs.push(bloc);
+    });
+
+    // Intro avec mention des athlètes en objectif principal
+    const noms = [...new Set(courses.flatMap(c => c.participants.filter(p => p.objectif).map(p => p.pseudo)))];
+    const intro = noms.length
+      ? `Bon courage à tous les partants ce week-end ! Mention spéciale pour ${noms.join(', ')} qui s'attaquent à leur objectif principal 💪\n\n`
+      : `Bon courage à tous les partants ce week-end ! 💪\n\n`;
+
+    const msg = intro + blocs.join('\n') + '_Revenez nous raconter !_ 🎉';
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  /* =============================================
+     EXPOSITION DES FONCTIONS AU SCOPE GLOBAL
+     Nécessaire car les handlers onclick dans le HTML
+     ne peuvent pas accéder aux fonctions locales
+  ============================================= */
+  window.openDetail = openDetail;
+  window.openAdd = openAdd;
+  window.openEdit = openEdit;
+  window.closeModal = closeModal;
+  window.toggleFmt = toggleFmt;
+  window.toggleNFmt = toggleNFmt;
+  window.addDistFmt = addDistFmt;
+  window.removeDistFmt = removeDistFmt;
+  window.addParticipant = addParticipant;
+  window.removeParticipant = removeParticipant;
+  window.saveForm = saveForm;
+  window.delCourse = delCourse;
+  window.prevMonth = prevMonth;
+  window.nextMonth = nextMonth;
+  window.openWhatsAppCoach = openWhatsAppCoach;
+  window.S = S; // Exposé pour debug dans la console
+
+  /* =============================================
+     INITIALISATION
+  ============================================= */
+  loadCourses(); // Charge les données au démarrage
+
+  /* =============================================
+     SWIPE MOBILE POUR CHANGER DE MOIS
+     Détecte les gestes horizontaux sur mobile
+  ============================================= */
+  (function() {
+    let startX = 0, startY = 0;
+    const el = document.getElementById('root');
+    el.addEventListener('touchstart', e => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+    el.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - startX;
+      const dy = e.changedTouches[0].clientY - startY;
+      // Swipe horizontal valide si > 50px et plus horizontal que vertical
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) nextMonth(); else prevMonth();
+      }
+    }, { passive: true });
+  })();
 </script>
 </body>
 </html>
