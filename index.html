@@ -484,7 +484,7 @@ function renderFormModal(){
     <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
     ${inscriptionBlock}
     <div class="mftr">
-      <button class="btn-sec" onclick="${S.editMode?`openEdit(${c.id})`:'closeModal()'}">Annuler</button>
+      <button class="btn-sec" onclick="${S.editMode?`openDetail(${c.id})`:'closeModal()'}">Annuler</button>
       <button class="btn-pri" onclick="saveForm()">${S.editMode?'Enregistrer':'Créer la course'}</button>
     </div>
   </div></div>`;
