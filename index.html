@@ -285,6 +285,7 @@
     view: null,        // 'detail' | 'form' | null
     editing: null,     // Objet course en cours d'édition
     editMode: false,   // true = modification, false = création
+    vueOrigin: 'cal',
 
     // Formulaire d'inscription (modale détail)
     newPseudo: '',
@@ -386,6 +387,7 @@
     S.editing = JSON.parse(JSON.stringify(S.courses.find(c => c.id === id)));
     S.tmpDist = '';
     S.tmpDplus = '';
+    S.vueOrigin = S.vue;
     render();
   }
 
@@ -771,7 +773,7 @@
       ${inscriptionBlock}
       <!-- Boutons d'action -->
       <div class="mftr">
-        <button class="btn-sec" onclick="${S.editMode ? `openDetail(${c.id})` : 'closeModal()'}">Annuler</button>
+        <button class="btn-sec" onclick="${S.editMode?(S.vueOrigin==='cal'?`openDetail(${c.id})`:'closeModal()'):'closeModal()'}">Annuler</button>
         <button class="btn-pri" onclick="saveForm()">${S.editMode ? 'Enregistrer' : 'Créer la course'}</button>
       </div>
     </div></div>`;
