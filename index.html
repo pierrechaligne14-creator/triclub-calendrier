@@ -359,7 +359,7 @@ function renderDetailModal(){
       <div style="border-left:2px solid ${s.bg};padding-left:10px;display:flex;flex-direction:column;gap:8px">
         ${parts.map(p=>`
           <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>
+            <span style="font-size:13px;${p.objectif?'color:#C10076;font-weight:500;':''}">${p.pseudo}</span>
             <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
           </div>`).join('')}
       </div>
