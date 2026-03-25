@@ -835,7 +835,7 @@
           <div>
             <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
             <div class="det-plist" style="border-color:${s.bg}">
-              ${parts.map(p => `<span style="font-size:13px;${p.objectif ? 'color:#C10076;font-weight:500;' : ''}">${p.pseudo}</span>`).join('')}
+              ${parts.map(p => `<span style="font-size:13px;${p.objectif ? 'color:#C10076;font-weight:500;' : ''}">${p.pseudo}</span>`) <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>.join('')}
             </div>
           </div>`).join('');
 
@@ -843,7 +843,7 @@
         const detail = expanded ? `
           <div class="ev-detail">
             ${c.comment ? `<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${c.comment}</div>` : ''}
-            ${c.participants.length ? `<div class="det-parts">${partCols}</div> <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>` : '<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
+            ${c.participants.length ? `<div class="det-parts">${partCols}</div>` : '<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
             <div class="det-actions">
               ${c.site ? `<a class="det-btn lnk" href="${c.site}" target="_blank">🌐 Site web</a>` : ''}
               ${c.wa ? `<a class="det-btn lnk-wa" href="${c.wa}" target="_blank" style="background:#25D366;color:#fff;border-color:#25D366">WhatsApp</a>` : ''}
