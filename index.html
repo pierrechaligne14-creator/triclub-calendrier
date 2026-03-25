@@ -535,8 +535,7 @@ function renderList(){
       const partCols=Object.entries(fmtMap).map(([fmt,parts])=>`
         <div>
           <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
-          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>`).join('')}
-          <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button></div>
+          <div class="det-plist" style="border-color:${s.bg}">${parts.map(p=>`<span style="font-size:13px;${p.objectif?'color:#e24b4a;font-weight:500;':''}">${p.pseudo}</span>`).join('')}</div>
         </div>`).join('');
 
       const detail=expanded?`
