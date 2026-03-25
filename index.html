@@ -609,7 +609,7 @@ function render(){
   if(S.loading){el.innerHTML='<div class="loading">Chargement...</div>';return;}
   el.innerHTML=`
     <div class="hdr">
-      <div class="hdr-title">Tri<em>Club</em> Calendrier</div>
+      <div class="hdr-title" onclick="S.vue='cal';render()" style="cursor:pointer">Tri<em>Club</em> Calendrier</div>
       <div style="display:flex;align-items:center;gap:8px">
         <div class="view-switch">
           <button class="vs-btn${S.vue==='cal'?' active':''}" onclick="S.vue='cal';render()">
