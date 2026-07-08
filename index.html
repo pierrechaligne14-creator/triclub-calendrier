@@ -218,7 +218,12 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRtc3dpbmJwdHhyb3N1Y2N4YXByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM4MzEwMTEsImV4cCI6MjA4OTQwNzAxMX0.AodlEsQr96FYtq0RTxMpo2j6dvZBdAtRZJ5-Pnh-WC8';
   const { createClient } = supabase;
   const db = createClient(SUPABASE_URL, SUPABASE_KEY);
-
+  // Ping Supabase pour éviter la mise en veille (appelé par cron externe)
+  if(window.location.search.includes('ping')){
+    db.from('courses').select('id').limit(1).then(()=>{
+      document.getElementById('root').innerHTML='<div style="padding:2rem;color:#aaa;font-size:14px">pong ✓</div>';
+    });
+  }
   /* =============================================
      CONSTANTES — SPORTS, FORMATS, LABELS
   ============================================= */
