@@ -1,0 +1,13 @@
+module.exports = async function handler(req, res) {
+  const response = await fetch(
+    `${process.env.SUPABASE_URL}/rest/v1/courses?select=id&limit=1`,
+    {
+      headers: {
+        'apikey': process.env.SUPABASE_KEY,
+        'Authorization': `Bearer ${process.env.SUPABASE_KEY}`
+      }
+    }
+  );
+  if (!response.ok) return res.status(500).json({ error: 'Supabase unreachable' });
+  res.status(200).json({ ok: true, pinged: new Date().toISOString() });
+};
