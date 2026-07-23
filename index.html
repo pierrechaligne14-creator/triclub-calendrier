@@ -281,6 +281,7 @@ body.dark .tag { filter: brightness(1.4); }
 body.dark .fmt-pill { filter: brightness(1.4); }
 body.dark .sbar { filter: brightness(1.4); }
 body.dark .sport-badge { filter: brightness(1.4); }
+body.dark .det-fmt-lbl { filter: brightness(1.6); }
   </style>
 </head>
 <body>
@@ -695,7 +696,7 @@ body.dark .sport-badge { filter: brightness(1.4); }
     const cols = Object.entries(fmtMap).map(([fmt, parts]) => `
       <div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-          <span style="font-size:13px;font-weight:600;color:${s.c}">${fmt}</span>
+          <span style="font-size:12px;font-weight:600;background:${s.bg};color:${s.c};border-radius:6px;padding:2px 8px">${fmt}</span>
           <span style="font-size:11px;color:#aaa">${parts.length}</span>
         </div>
         <div style="border-left:2px solid ${s.bg};padding-left:10px;display:flex;flex-direction:column;gap:8px">
@@ -926,8 +927,8 @@ body.dark .sport-badge { filter: brightness(1.4); }
         });
         const partCols = Object.entries(fmtMap).map(([fmt, parts]) => `
           <div>
-            <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
-            <div class="det-plist" style="border-color:${s.bg}">
+            <div class="det-fmt-lbl"><span style="font-size:12px;font-weight:600;background:${s.bg};color:${s.c};border-radius:6px;padding:2px 8px">${fmt}</span> <span style="font-size:11px;color:#aaa">· ${parts.length}</span></div>
+            <div class="det-plist" style="border-color:${s.mid}">
               ${parts.map(p=>`
                 <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:13px;${p.objectif?'color:#C10076;font-weight:500;':''}">${p.pseudo}</span>
