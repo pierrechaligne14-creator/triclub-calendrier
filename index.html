@@ -1026,44 +1026,58 @@
      GÉNÉRATION DU MESSAGE COACH WHATSAPP
      Génère un message avec les inscrits du week-end à venir
   ============================================= */
-  function openWhatsAppCoach() {
-    const now = new Date();
-    const day = now.getDay();
-    // Calcul du prochain samedi et dimanche
-    const diffSam = day === 6 ? 0 : day === 0 ? 6 : 6 - day;
-    const diffDim = day === 0 ? 0 : 7 - day;
-    const sam = new Date(now); sam.setDate(now.getDate() + diffSam); sam.setHours(0, 0, 0, 0);
-    const dim = new Date(now); dim.setDate(now.getDate() + diffDim); dim.setHours(23, 59, 59, 999);
 
-    // Filtre les courses du week-end avec au moins un inscrit
-    const courses = S.courses.filter(c => {
-      const d = new Date(c.date);
-      return d >= sam && d <= dim && c.participants.length > 0;
-    }).sort((a, b) => a.date.localeCompare(b.date));
+function openWhatsAppCoach() {
+  const now = new Date();
+  const day = now.getDay(); // 0=dim, 1=lun...6=sam
 
-    if (courses.length === 0) { showToast('Aucune course ce week-end'); return; }
+  // Du jour actuel jusqu'au dimanche suivant
+  const debut = new Date(now); debut.setHours(0, 0, 0, 0);
+  const diffDim = day === 0 ? 0 : 7 - day;
+  const fin = new Date(now); fin.setDate(now.getDate() + diffDim); fin.setHours(23, 59, 59, 999);
 
-    // Construction du message
-    const blocs = [];
-    courses.forEach(c => {
-      const d = new Date(c.date).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-      const parObjectif = c.participants.filter(p => p.objectif);
-      const parAutres = c.participants.filter(p => !p.objectif);
-      let bloc = `🏁 *${c.titre}* — ${c.lieu} (${d})\n`;
-      if (parObjectif.length) bloc += `⭐ Objectif principal : ${parObjectif.map(p => p.pseudo).join(', ')}\n`;
-      if (parAutres.length) bloc += `👟 Également au départ : ${parAutres.map(p => p.pseudo).join(', ')}\n`;
-      blocs.push(bloc);
-    });
+  // Filtre les courses de la période avec au moins un inscrit
+  const courses = S.courses.filter(c => {
+    const d = new Date(c.date);
+    return d >= debut && d <= fin && c.participants.length > 0;
+  }).sort((a, b) => a.date.localeCompare(b.date));
 
-    // Intro avec mention des athlètes en objectif principal
-    const noms = [...new Set(courses.flatMap(c => c.participants.filter(p => p.objectif).map(p => p.pseudo)))];
-    const intro = noms.length
-      ? `Bon courage à tous les partants ce week-end ! Mention spéciale pour ${noms.join(', ')} qui s'attaquent à leur objectif principal 💪\n\n`
-      : `Bon courage à tous les partants ce week-end ! 💪\n\n`;
+  if (courses.length === 0) { showToast('Aucune course cette semaine 🏖️'); return; }
 
-    const msg = intro + blocs.join('\n') + '_Revenez nous raconter !_ 🎉';
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
-  }
+  // Groupement par jour
+  const parJour = {};
+  courses.forEach(c => {
+    const d = new Date(c.date);
+    const jourLabel = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    if (!parJour[jourLabel]) parJour[jourLabel] = [];
+    parJour[jourLabel].push(c);
+  });
+
+  // Construction du message
+  const blocs = Object.entries(parJour).map(([jour, cs]) => {
+    const lignes = cs.map(c => {
+      const pseudosObjectif = [...new Set(c.participants.filter(p => p.objectif).map(p => p.pseudo))];
+      const pseudosAutres = [...new Set(c.participants.filter(p => !p.objectif).map(p => p.pseudo))];
+      const tousLesPseudos = [
+        ...pseudosObjectif.map(p => `${p} ⭐`),
+        ...pseudosAutres
+      ];
+      return `🏁 ${c.titre}\n${tousLesPseudos.join(', ')}`;
+    }).join('\n\n');
+    return `*${jour.charAt(0).toUpperCase() + jour.slice(1)}* :\n${lignes}`;
+  }).join('\n\n');
+
+  // Intro avec mention des athlètes en objectif principal
+  const noms = [...new Set(courses.flatMap(c =>
+    c.participants.filter(p => p.objectif).map(p => p.pseudo)
+  ))];
+  const intro = noms.length
+    ? `Bon courage à tous les partants cette semaine ! Mention spéciale pour ${noms.join(', ')} qui s'attaquent à leur objectif principal 💪\n\n`
+    : `Bon courage à tous les partants cette semaine ! 💪\n\n`;
+
+  const msg = intro + blocs + '\n\n_Revenez nous raconter !_ 🎉';
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+}
 
   /* =============================================
      EXPOSITION DES FONCTIONS AU SCOPE GLOBAL
