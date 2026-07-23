@@ -616,6 +616,9 @@
         fmtMap[f].push(p);
       });
     });
+    Object.keys(fmtMap).forEach(f => {
+        fmtMap[f].sort((a, b) => a.pseudo.localeCompare(b.pseudo, 'fr'));
+      });
 
     // Colonnes participants par format avec trait vertical coloré
     const cols = Object.entries(fmtMap).map(([fmt, parts]) => `
@@ -847,6 +850,9 @@
           if (!fmtMap[f]) fmtMap[f] = [];
           fmtMap[f].push(p);
         }));
+        Object.keys(fmtMap).forEach(f => {
+          fmtMap[f].sort((a, b) => a.pseudo.localeCompare(b.pseudo, 'fr'));
+        });
         const partCols = Object.entries(fmtMap).map(([fmt, parts]) => `
           <div>
             <div class="det-fmt-lbl" style="color:${s.c}">${fmt} · ${parts.length}</div>
