@@ -743,7 +743,7 @@ body.dark .pill { filter: brightness(1.5); }
       <div class="sec">
         <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
           <span style="font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em">Participants</span>
-          <span style="font-size:13px;font-weight:500;color:#1a1a1a">${c.participants.length} inscrit${c.participants.length > 1 ? 's' : ''}</span>
+          <span style="font-size:13px;font-weight:500">${c.participants.length} inscrit${c.participants.length > 1 ? 's' : ''}</span>
         </div>
         <div style="margin-bottom:12px">${participantsBlock}</div>
         <!-- Formulaire d'inscription -->
@@ -886,7 +886,8 @@ body.dark .pill { filter: brightness(1.5); }
     const fmtOpts = allFmts.map(f => `<option value="${f}">${f}</option>`).join('');
 
     // Application des filtres
-    let courses = [...S.courses].sort((a, b) => a.date.localeCompare(b.date));
+    const todayStr = fmtDate(today);
+    let courses = [...S.courses].filter(c => c.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date));
     if (S.filterMois) courses = courses.filter(c => c.date.startsWith(S.filterMois));
     if (S.filterSport) courses = courses.filter(c => c.sport === S.filterSport);
     if (S.filterFormat) courses = courses.filter(c => c.formats.includes(S.filterFormat));
