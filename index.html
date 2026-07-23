@@ -1071,9 +1071,11 @@ function openWhatsAppCoach() {
   const noms = [...new Set(courses.flatMap(c =>
     c.participants.filter(p => p.objectif).map(p => p.pseudo)
   ))];
-  const intro = noms.length
-    ? `Bon courage à tous les partants cette semaine ! Mention spéciale pour ${noms.join(', ')} qui s'attaquent à leur objectif principal 💪\n\n`
-    : `Bon courage à tous les partants cette semaine ! 💪\n\n`;
+  const intro = noms.length === 1
+  ? `Bon courage à tous les partants cette semaine ! Mention spéciale pour ${noms[0]} qui s'attaque à son objectif principal 💪\n\n`
+  : noms.length > 1
+  ? `Bon courage à tous les partants cette semaine ! Mention spéciale pour ${noms.join(', ')} qui s'attaquent à leur objectif principal 💪\n\n`
+  : `Bon courage à tous les partants cette semaine ! 💪\n\n`;
 
   const msg = intro + blocs + '\n\n_Revenez nous raconter !_ 🎉';
   window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
