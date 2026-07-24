@@ -885,7 +885,7 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
     const allFmts = [...new Set(S.courses.flatMap(c => c.formats))].sort();
     const fmtOpts = allFmts.map(f => `<option value="${f}">${f}</option>`).join('');
 
-    // Application des filtres
+    // Application des filtres et uniquement les courses après aujourd'hui
     const todayStr = fmtDate(today);
     let courses = [...S.courses].filter(c => c.date >= todayStr).sort((a, b) => a.date.localeCompare(b.date));
     if (S.filterMois) courses = courses.filter(c => c.date.startsWith(S.filterMois));
@@ -1031,7 +1031,7 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
   // Initialise le mode sombre selon les préférences système ou la préférence sauvegardée
   function initDarkMode() {
     const saved = localStorage.getItem('darkMode');
-    if (saved === 'true' || (saved === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (saved === 'true' ) {
       document.body.classList.add('dark');
     }
     // Écoute les changements de préférence système
