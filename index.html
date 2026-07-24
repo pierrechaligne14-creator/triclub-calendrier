@@ -878,33 +878,29 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
      RENDU DE LA VUE LISTE
   ============================================= */
   function renderList() {
-    // Construction des options des filtres dynamiquement depuis les données
     const todayStr = fmtDate(today);
+
+    // Construction des options des filtres dynamiquement depuis les données
     const moisDispo = [...new Set(S.courses
       .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date.startsWith(today.getFullYear()))
       .map(c => c.date.slice(0, 7)))].sort();
     const moisOpts = moisDispo.map(m => {
-      const [y, mo] = m.split('-');
+    const [y, mo] = m.split('-');
       return `<option value="${m}">${MONTHS[parseInt(mo) - 1]} ${y}</option>`;
     }).join('');
     const sportOpts = SP.map(s => `<option value="${s.id}">${s.l}</option>`).join('');
     const allFmts = [...new Set(S.courses.flatMap(c => c.formats))].sort();
     const fmtOpts = allFmts.map(f => `<option value="${f}">${f}</option>`).join('');
-  <div style="display:flex;gap:2px;margin-bottom:1rem">
-    <button class="vs-btn${S.listTab==='avenir'?' active':''}" onclick="S.listTab='avenir';render()">À venir</button>
-    <button class="vs-btn${S.listTab==='history'?' active':''}" onclick="S.listTab='history';render()">Historique</button>
-  </div>
-    // Application des filtres et uniquement les courses après aujourd'hui
-    const todayStr = fmtDate(today);
+
+    // Application des filtres
     let courses = [...S.courses]
-      .filter(c => S.listTab==='avenir' ? c.date >= todayStr : c.date < todayStr && c.date.startsWith(today.getFullYear()))
-      .sort((a, b) => S.listTab==='avenir' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
+      .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date.startsWith(today.getFullYear()))
+      .sort((a, b) => S.listTab === 'avenir' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
     if (S.filterMois) courses = courses.filter(c => c.date.startsWith(S.filterMois));
     if (S.filterSport) courses = courses.filter(c => c.sport === S.filterSport);
     if (S.filterFormat) courses = courses.filter(c => c.formats.includes(S.filterFormat));
     if (S.filterSearch) {
       const q = S.filterSearch.toLowerCase();
-      // Recherche sur le titre, le lieu et les noms de participants
       courses = courses.filter(c =>
         c.titre.toLowerCase().includes(q) ||
         c.lieu.toLowerCase().includes(q) ||
