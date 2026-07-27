@@ -992,9 +992,9 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
     return `
       <!-- Barre de filtres -->
         <!-- Onglets À venir / Historique -->
-          <div style="display:flex;gap:2px;margin-bottom:1rem">
-            <button class="vs-btn${S.listTab==='avenir'?' active':''}" onclick="S.listTab='avenir';render()">À venir</button>
-            <button class="vs-btn${S.listTab==='history'?' active':''}" onclick="S.listTab='history';render()">Historique</button>
+          <div style="display:flex;gap:2px;margin-bottom:1rem;border:0.5px solid #e5e5e0;border-radius:8px;overflow:hidden">
+            <button class="vs-btn${S.listTab==='avenir'?' active':''}" onclick="S.listTab='avenir';render()" style="flex:1;justify-content:center;border-radius:0;padding:8px">À venir</button>
+            <button class="vs-btn${S.listTab==='history'?' active':''}" onclick="S.listTab='history';render()" style="flex:1;justify-content:center;border-radius:0;padding:8px">Historique</button>
           </div>
       <div class="list-filters">
         <select class="fsel${S.filterMois ? ' on' : ''}" data-filter="mois" onchange="S.filterMois=this.value;renderKeepFocus()">
