@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+  <!DOCTYPE html>
 <!--
   TriClub Calendrier — v1.0
   Copyright (c) 2026 [CHALIGNE Pierre / RMA Triathlon]
@@ -282,7 +282,15 @@ body.dark .fmt-pill { filter: brightness(1.4); }
 body.dark .sbar { filter: brightness(1.4); }
 body.dark .sport-badge { filter: brightness(1.4); }
 body.dark .det-fmt-lbl { filter: brightness(1.6); }
-
+    /* Transition douce entre les vues */
+    .view-content {
+      animation: fadeIn 0.2s ease;
+      }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
   </style>
 </head>
 <body>
@@ -1102,6 +1110,7 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
       <!-- Vue principale : calendrier ou liste selon S.vue -->
       ${S.vue === 'cal' ? `
         <!-- Navigation mois -->
+        <div class="view-content">
         <div class="cal-nav">
           <button onclick="prevMonth()">&#8592;</button>
           <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
@@ -1120,7 +1129,7 @@ body.dark .det-fmt-lbl { filter: brightness(1.6); }
           ${S.filterCalSport.length ? `<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>` : ''}
         </div>
       ` : renderList()}
-
+      </div>
       <!-- Modales (affichées par-dessus le contenu) -->
       ${S.view === 'detail' ? renderDetailModal() : ''}
       ${S.view === 'form' ? renderFormModal() : ''}
