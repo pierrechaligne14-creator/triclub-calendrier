@@ -13,12 +13,18 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>${BRAND.clubName}${BRAND.clubNameAccent} Calendrier</title>
-  <link rel="icon" type="image/webp" href="${BRAND.logo}"/>
+  <title>RMA Tri Calendrier</title>
+  <link rel="icon" type="image/webp" href=""RMA-Paris-logo-light.png""/>
   <!-- Librairie Supabase pour la base de données -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    :root {
+      --brand-primary: #C10076;
+      --brand-primary-dark: #9A005C;
+      --brand-primary-bg: #FCE4F3;
+      --brand-primary-text: #7A0050;
+    }
     /* =============================================
        RESET & BASE
     ============================================= */
@@ -32,7 +38,7 @@
     ============================================= */
     .hdr { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 0 1rem; border-bottom: 1px solid #e5e5e0; margin-bottom: 0.75rem; }
     .hdr-title { font-size: 20px; font-weight: 600; color: #1a1a1a; }
-    .hdr-title em { font-style: normal; color: ${BRAND.primary}; } /* Couleur principale du club */
+    .hdr-title em { font-style: normal; color: var(--brand-primary); } /* Couleur principale du club */
 
     /* =============================================
        TOGGLE VUE CALENDRIER / LISTE
@@ -62,7 +68,7 @@
     .dc:hover { background: #FDF0FA; } /* Survol rose très clair (couleur club) */
     .dc.om { background: #fafaf8; } /* Jours hors mois courant */
     .dc.om .dn { color: #ccc; }
-    .dc.td .dn { background: ${BRAND.primary}; color: #fff; border-radius: 50%; } /* Aujourd'hui */
+    .dc.td .dn { background: var(--brand-primary); color: #fff; border-radius: 50%; } /* Aujourd'hui */
     .dn { font-size: 12px; font-weight: 500; color: #888; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; margin-bottom: 3px; } /* Numéro du jour */
 
     /* Pills d'événements dans les cellules du calendrier */
@@ -112,20 +118,20 @@
     .fmt-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
     .fb { border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: #1a1a1a; transition: all .15s; }
     .fb:hover { background: #f0f0ee; }
-    .fb.on { border: 2px solid ${BRAND.primary}; background: ${BRAND.primaryBg}; color: ${BRAND.primaryText}; padding: 4px 11px; font-weight: 600; } /* Format sélectionné */
+    .fb.on { border: 2px solid var(--brand-primary); background: var(--brand-primary-bg); color: var(--brand-primary-text); padding: 4px 11px; font-weight: 600; } /* Format sélectionné */
     .fb.on::before { content: "✓ "; font-size: 11px; }
 
     /* Boutons de format dans le formulaire de création */
     .fb-edit { border: 1px solid #e5e5e0; border-radius: 8px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; background: #fff; color: #1a1a1a; transition: all .15s; }
     .fb-edit:hover { background: #f0f0ee; }
-    .fb-edit.on { border: 2px solid ${BRAND.primary}; background: ${BRAND.primaryBg}; color: ${BRAND.primaryText}; padding: 4px 11px; font-weight: 600; }
+    .fb-edit.on { border: 2px solid var(--brand-primary); background: var(--brand-primary-bg); color: var(--brand-primary-text); padding: 4px 11px; font-weight: 600; }
     .fb-edit.on::before { content: "✓ "; font-size: 11px; }
 
     /* =============================================
        BOUTONS PRINCIPAUX
     ============================================= */
-    .btn-join { width: 100%; background: ${BRAND.primary}; color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .btn-join:hover { background: ${BRAND.primaryDark}; }
+    .btn-join { width: 100%; background: var(--brand-primary); color: #fff; border: none; border-radius: 8px; padding: 9px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-join:hover { background: var(--brand-primary-dark); }
     .btn-join:disabled { opacity: .4; cursor: default; }
     .mftr { display: flex; gap: 8px; justify-content: flex-end; padding-top: 1rem; border-top: 1px solid #e5e5e0; margin-top: 1rem; flex-wrap: wrap; align-items: center; } /* Footer de modale */
     .mftr-left { margin-right: auto; }
@@ -133,8 +139,8 @@
     .btn-del:hover { background: #fcebeb; }
     .btn-sec { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #1a1a1a; } /* Bouton secondaire */
     .btn-sec:hover { background: #f0f0ee; }
-    .btn-pri { background: ${BRAND.primary}; color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; } /* Bouton primaire couleur club */
-    .btn-pri:hover { background: ${BRAND.primaryDark}; }
+    .btn-pri { background: var(--brand-primary); color: #fff; border: none; border-radius: 8px; padding: 7px 16px; font-size: 13px; font-weight: 600; cursor: pointer; } /* Bouton primaire couleur club */
+    .btn-pri:hover { background: var(--brand-primary-dark); }
     .btn-edit { background: #fff; border: 1px solid #e5e5e0; border-radius: 8px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: #1a1a1a; display: inline-flex; align-items: center; gap: 5px; }
     .btn-edit:hover { background: #f0f0ee; }
 
@@ -153,7 +159,7 @@
     /* Ajout de format libre (distance + D+) */
     .dist-fmt-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 8px; }
     .dist-fmt-row input { flex: 1; border: 1px solid #e5e5e0; border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: inherit; background: #fff; color: #1a1a1a; }
-    .dist-fmt-row button { background: ${BRAND.primary}; color: #fff; border: none; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
+    .dist-fmt-row button { background: var(--brand-primary); color: #fff; border: none; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
     /* =============================================
        VALIDATION DES FORMULAIRES
@@ -188,7 +194,7 @@
     .date-lbl { font-size: 11px; font-weight: 600; color: #aaa; letter-spacing: .05em; white-space: nowrap; }
     .ev-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f0f0ee; cursor: pointer; }
     .ev-item:last-child { border-bottom: none; }
-    .ev-item:hover .ev-title { color: ${BRAND.primary}; }
+    .ev-item:hover .ev-title { color: var(--brand-primary); }
     .sbar { width: 3px; height: 34px; border-radius: 99px; flex-shrink: 0; } /* Barre colorée sport */
     .ev-info { flex: 1; min-width: 0; }
     .ev-title { font-size: 13px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color .15s; }
@@ -230,7 +236,7 @@ body.dark .dc { background: #1c1c1e; }
 body.dark .dc:hover { background: #2a1020; }
 body.dark .dc.om { background: #161618; }
 body.dark .dc.om .dn { color: #48484a; }
-body.dark .dc.td .dn { background: ${BRAND.primary}; }
+body.dark .dc.td .dn { background: var(--brand-primary); }
 body.dark .dn { color: #8e8e93; }
 body.dark .modal { background: #2c2c2e; border-color: #3a3a3c; }
 body.dark .mhdr h2 { color: #e8e8e8; }
@@ -273,7 +279,7 @@ body.dark .leg-item { opacity: .9; }
 body.dark .overlay { background: rgba(0,0,0,.6); }
 body.dark .tag { opacity: .9; }
 body.dark .fmt-hint { color: #8e8e93; }
-body.dark .ev-item:hover .ev-title { color: ${BRAND.primary}; }
+body.dark .ev-item:hover .ev-title { color: var(--brand-primary); }
 body.dark .cal-month { color: #e8e8e8; }
 body.dark .toast { background: #3a3a3c; color: #e8e8e8; }
 body.dark .pill { filter: brightness(1.4); }
@@ -328,7 +334,20 @@ const BRAND = {
   logo: 'RMA-Paris-logo-light.png', // Nom du fichier logo
   clubName: 'Tri', // Première partie du nom affiché
   clubNameAccent: 'Club', // Partie colorée du nom
-};
+  };
+  // Injection des variables CSS depuis BRAND
+const brandStyle = document.createElement('style');
+brandStyle.textContent = `:root {
+  --brand-primary: ${BRAND.primary};
+  --brand-primary-dark: ${BRAND.primaryDark};
+  --brand-primary-bg: ${BRAND.primaryBg};
+  --brand-primary-text: ${BRAND.primaryText};
+}`;
+document.head.appendChild(brandStyle);
+
+// Titre et favicon depuis BRAND
+document.title = `${BRAND.clubName}${BRAND.clubNameAccent} Calendrier`;
+document.querySelector('link[rel="icon"]').href = BRAND.logo;
   /* =============================================
      CONSTANTES — SPORTS, FORMATS, LABELS
   ============================================= */
