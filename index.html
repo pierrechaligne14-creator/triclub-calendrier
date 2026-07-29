@@ -15,7 +15,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RMA Tri Calendrier</title>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"/>
-  <link rel="icon" type="image/webp" href=""RMA-Paris-logo-light.png""/>
+  <link rel="icon" type="image/webp" href="RMA-Paris-logo-light.png"/>
   <!-- Librairie Supabase pour la base de données -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -100,13 +100,6 @@
     .lnk:hover { background: #f0f0ee; }
     .lnk-wa { display: inline-flex; align-items: center; gap: 6px; border: 1px solid #25D366; border-radius: 8px; padding: 6px 14px; font-size: 13px; font-weight: 600; color: #fff; text-decoration: none; margin: 0 5px 5px 0; background: #25D366; } /* Bouton WhatsApp vert officiel */
     .lnk-wa:hover { background: #1da851; }
-
-    /* Chips participants (ancienne version, non utilisée activement) */
-    .pchip { background: #f5f5f2; border: 1px solid #e5e5e0; border-radius: 99px; padding: 4px 10px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px; margin: 0 4px 4px 0; color: #1a1a1a; }
-    .pchip strong { font-weight: 600; }
-    .pchip .psub { color: #888; font-size: 11px; }
-    .pchip .pdel { background: none; border: none; cursor: pointer; color: #ccc; font-size: 14px; padding: 0 0 0 2px; line-height: 1; }
-    .pchip .pdel:hover { color: #e24b4a; }
 
     /* =============================================
        BLOC D'INSCRIPTION (dans la modale détail)
@@ -227,70 +220,68 @@
    MODE SOMBRE
 ============================================= */
 
-body.dark { background: #1c1c1e; color: #e8e8e8; }
-body.dark .hdr { border-bottom-color: #3a3a3c; }
-body.dark .cal-nav button { background: #2c2c2e; border-color: #3a3a3c; color: #e8e8e8; }
-body.dark .cal-nav button:hover { background: #3a3a3c; }
-body.dark .grid { background: #3a3a3c; border-color: #3a3a3c; }
-body.dark .dh { background: #2c2c2e; color: #8e8e93; }
-body.dark .dc { background: #1c1c1e; }
-body.dark .dc:hover { background: #2a1020; }
-body.dark .dc.om { background: #161618; }
-body.dark .dc.om .dn { color: #48484a; }
-body.dark .dc.td .dn { background: var(--brand-primary); }
-body.dark .dn { color: #8e8e93; }
-body.dark .modal { background: #2c2c2e; border-color: #3a3a3c; }
-body.dark .mhdr h2 { color: #e8e8e8; }
-body.dark .mcls { color: #8e8e93; }
-body.dark .mcls:hover { color: #e8e8e8; }
-body.dark .sec-lbl { color: #8e8e93; }
-body.dark .cmmt { background: #3a3a3c; color: #c7c7cc; }
-body.dark .edit-banner { background: #3a3a3c; color: #8e8e93; }
-body.dark .add-box { background: #3a3a3c; }
-body.dark .add-box input[type=text] { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
-body.dark .fb { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
-body.dark .fb:hover { background: #48484a; }
-body.dark .fb-edit { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
-body.dark .fb-edit:hover { background: #48484a; }
-body.dark .lnk { background: #2c2c2e; border-color: #48484a; color: #c7c7cc; }
-body.dark .lnk:hover { background: #3a3a3c; }
-body.dark .btn-sec { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
-body.dark .btn-sec:hover { background: #3a3a3c; }
-body.dark .btn-edit { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
-body.dark .btn-edit:hover { background: #3a3a3c; }
-body.dark .btn-del { border-color: #8a3030; color: #ff6b6b; }
-body.dark .btn-del:hover { background: #3a1818; }
-body.dark .frow input, body.dark .frow select, body.dark .frow textarea { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
-body.dark .dist-fmt-row input { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
-body.dark .fsel { background: #2c2c2e; border-color: #48484a; color: #c7c7cc; }
-body.dark .list-search { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
-body.dark .ev-item { border-bottom-color: #3a3a3c; }
-body.dark .ev-title { color: #e8e8e8; }
-body.dark .ev-sub { color: #8e8e93; }
-body.dark .ev-nb { color: #8e8e93; }
-body.dark .ev-detail { background: #2c2c2e; }
-body.dark .det-btn { background: #3a3a3c; border-color: #48484a; color: #c7c7cc; }
-body.dark .det-btn:hover { background: #48484a; }
-body.dark .date-line { background: #3a3a3c; }
-body.dark .date-lbl { color: #8e8e93; }
-body.dark .hdr-title { color: #e8e8e8; }
-body.dark .vs-btn { color: #8e8e93; }
-body.dark .vs-btn.active { background: #3a3a3c; color: #e8e8e8; }
-body.dark .leg-item { opacity: .9; }
-body.dark .overlay { background: rgba(0,0,0,.6); }
-body.dark .tag { opacity: .9; }
-body.dark .fmt-hint { color: #8e8e93; }
-body.dark .ev-item:hover .ev-title { color: var(--brand-primary); }
-body.dark .cal-month { color: #e8e8e8; }
-body.dark .toast { background: #3a3a3c; color: #e8e8e8; }
-body.dark .pill { filter: brightness(1.4); }
-body.dark .leg-item { filter: brightness(1.4); }
-body.dark .tag { filter: brightness(1.4); }
-body.dark .fmt-pill { filter: brightness(1.4); }
-body.dark .sbar { filter: brightness(1.4); }
-body.dark .sport-badge { filter: brightness(1.4); }
-body.dark .det-fmt-lbl { filter: brightness(1.6); }
-body.dark .credit{ color: #404042;}
+    body.dark { background: #1c1c1e; color: #e8e8e8; }
+    body.dark .hdr { border-bottom-color: #3a3a3c; }
+    body.dark .cal-nav button { background: #2c2c2e; border-color: #3a3a3c; color: #e8e8e8; }
+    body.dark .cal-nav button:hover { background: #3a3a3c; }
+    body.dark .grid { background: #3a3a3c; border-color: #3a3a3c; }
+    body.dark .dh { background: #2c2c2e; color: #8e8e93; }
+    body.dark .dc { background: #1c1c1e; }
+    body.dark .dc:hover { background: #2a1020; }
+    body.dark .dc.om { background: #161618; }
+    body.dark .dc.om .dn { color: #48484a; }
+    body.dark .dc.td .dn { background: var(--brand-primary); }
+    body.dark .dn { color: #8e8e93; }
+    body.dark .modal { background: #2c2c2e; border-color: #3a3a3c; }
+    body.dark .mhdr h2 { color: #e8e8e8; }
+    body.dark .mcls { color: #8e8e93; }
+    body.dark .mcls:hover { color: #e8e8e8; }
+    body.dark .sec-lbl { color: #8e8e93; }
+    body.dark .cmmt { background: #3a3a3c; color: #c7c7cc; }
+    body.dark .edit-banner { background: #3a3a3c; color: #8e8e93; }
+    body.dark .add-box { background: #3a3a3c; }
+    body.dark .add-box input[type=text] { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
+    body.dark .fb { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
+    body.dark .fb:hover { background: #48484a; }
+    body.dark .fb-edit { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
+    body.dark .fb-edit:hover { background: #48484a; }
+    body.dark .lnk { background: #2c2c2e; border-color: #48484a; color: #c7c7cc; }
+    body.dark .lnk:hover { background: #3a3a3c; }
+    body.dark .btn-sec { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
+    body.dark .btn-sec:hover { background: #3a3a3c; }
+    body.dark .btn-edit { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
+    body.dark .btn-edit:hover { background: #3a3a3c; }
+    body.dark .btn-del { border-color: #8a3030; color: #ff6b6b; }
+    body.dark .btn-del:hover { background: #3a1818; }
+    body.dark .frow input, body.dark .frow select, body.dark .frow textarea { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
+    body.dark .dist-fmt-row input { background: #3a3a3c; border-color: #48484a; color: #e8e8e8; }
+    body.dark .fsel { background: #2c2c2e; border-color: #48484a; color: #c7c7cc; }
+    body.dark .list-search { background: #2c2c2e; border-color: #48484a; color: #e8e8e8; }
+    body.dark .ev-item { border-bottom-color: #3a3a3c; }
+    body.dark .ev-title { color: #e8e8e8; }
+    body.dark .ev-sub { color: #8e8e93; }
+    body.dark .ev-nb { color: #8e8e93; }
+    body.dark .ev-detail { background: #2c2c2e; }
+    body.dark .det-btn { background: #3a3a3c; border-color: #48484a; color: #c7c7cc; }
+    body.dark .det-btn:hover { background: #48484a; }
+    body.dark .date-line { background: #3a3a3c; }
+    body.dark .date-lbl { color: #8e8e93; }
+    body.dark .hdr-title { color: #e8e8e8; }
+    body.dark .vs-btn { color: #8e8e93; }
+    body.dark .vs-btn.active { background: #3a3a3c; color: #e8e8e8; }
+    body.dark .overlay { background: rgba(0,0,0,.6); }
+    body.dark .fmt-hint { color: #8e8e93; }
+    body.dark .ev-item:hover .ev-title { color: var(--brand-primary); }
+    body.dark .cal-month { color: #e8e8e8; }
+    body.dark .toast { background: #3a3a3c; color: #e8e8e8; }
+    body.dark .pill { filter: brightness(1.4); }
+    body.dark .leg-item { filter: brightness(1.4); }
+    body.dark .tag { filter: brightness(1.4); }
+    body.dark .fmt-pill { filter: brightness(1.4); }
+    body.dark .sbar { filter: brightness(1.4); }
+    body.dark .sport-badge { filter: brightness(1.4); }
+    body.dark .det-fmt-lbl { filter: brightness(1.6); }
+    body.dark .credit{ color: #404042;}
     /* Transition douce entre les vues */
     .view-content {
       animation: fadeIn 0.2s ease;
@@ -733,7 +724,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
 
     // Liens externes
     const links = [
-      c.site ? `<a class="lnk" href="${c.site}" target="_blank">🌐 Site web     </a>` : '',
+      c.site ? `<a class="lnk" href="${c.site}" target="_blank">🌐 Site web</a>` : '',
       c.wa ? `<a class="lnk-wa" href="${c.wa}" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` : '',
     ].join('');
 
@@ -760,7 +751,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           ${parts.map(p => `
             <div style="display:flex;align-items:center;gap:8px">
               <!-- Nom en rose si objectif principal -->
-              <span style="font-size:13px;${p.objectif ? 'color:#C10076;font-weight:500;' : ''}">${p.pseudo}</span>
+              <span style="font-size:13px;${p.objectif ? 'color:${BRAND.primary};font-weight:500;' : ''}">${p.pseudo}</span>
               <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
             </div>`).join('')}
         </div>
@@ -1165,6 +1156,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
           <button onclick="nextMonth()">&#8594;</button>
         </div>
+        ` : `<div class="view-content">${renderList()}</div>`}
         <!-- Grille du calendrier -->
         ${renderCal()}
         <!-- Légende des sports (cliquable pour filtrer) -->
