@@ -1147,30 +1147,29 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         Calendrier partagé du club — chacun peut ajouter une course et s'inscrire. Indique ton <strong style="color:${BRAND.primary}">Prénom Nom</strong> complet pour que tout le monde se retrouve. On compte sur la bienveillance de chacun pour garder ça propre et utile pour tous ! Bien évidemment, vous "inscrire" ici, ne vous inscrit pas à la course.
       </p>
 
-      <!-- Vue principale : calendrier ou liste selon S.vue -->
+    <!-- Vue principale : calendrier ou liste selon S.vue -->
+    <div class="view-content">
       ${S.vue === 'cal' ? `
-        <!-- Navigation mois -->
-        <div class="view-content">
-        <div class="cal-nav">
-          <button onclick="prevMonth()">&#8592;</button>
-          <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
-          <button onclick="nextMonth()">&#8594;</button>
-        </div>
-        ` : `<div class="view-content">${renderList()}</div>`}
-        <!-- Grille du calendrier -->
-        ${renderCal()}
-        <!-- Légende des sports (cliquable pour filtrer) -->
-        <div class="legend">
-          ${SP.map(s => `
-            <span class="leg-item"
-              style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport.includes(s.id) ? s.c : 'transparent'};transition:border .15s"
-              onclick="S.filterCalSport.includes('${s.id}')?S.filterCalSport=S.filterCalSport.filter(x=>x!=='${s.id}'):S.filterCalSport.push('${s.id}');render()">
-              ${s.l}
-            </span>`).join('')}
-          ${S.filterCalSport.length ? `<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>` : ''}
-        </div>
-      ` : renderList()}
+      <!-- Navigation mois -->
+      <div class="cal-nav">
+        <button onclick="prevMonth()">&#8592;</button>
+        <span class="cal-month">${MONTHS[S.month]} ${S.year}</span>
+        <button onclick="nextMonth()">&#8594;</button>
       </div>
+      <!-- Grille du calendrier -->
+      ${renderCal()}
+      < !-- Légende des sports (cliquable pour filtrer) -->
+      <div class="legend">
+        ${SP.map(s => `
+          <span class="leg-item"
+            style="background:${s.bg};color:${s.c};cursor:pointer;border:2px solid ${S.filterCalSport.includes(s.id) ? s.c : 'transparent'};transition:border .15s"
+            onclick="S.filterCalSport.includes('${s.id}')?S.filterCalSport=S.filterCalSport.filter(x=>x!=='${s.id}'):S.filterCalSport.push('${s.id}');render()">
+            ${s.l}
+          </span>`).join('')}
+        ${S.filterCalSport.length ? `<span style="font-size:12px;color:#aaa;cursor:pointer;padding:3px 8px" onclick="S.filterCalSport=[];render()">× Tout afficher</span>` : ''}
+      </div>
+    ` : renderList()}
+    </div>
       <p style="font-size:6px;color:#b5b5b5;line-height:1.6; text-align : right">
         Ce calendrier a été créé par Pierre Chaligné tous droits réservé ©
         </p>
