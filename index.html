@@ -536,6 +536,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     if (!c.titre.trim()) errors.titre = 'Nom obligatoire';
     if (!c.lieu.trim()) errors.lieu = 'Lieu obligatoire';
     if (c.formats.length === 0) errors.formats = 'Au moins un format obligatoire';
+    if (c.titre.length > 30) errors.titre = 'Nom trop long (30 caractères max)';
     if (Object.keys(errors).length > 0) { S.errors = errors; render(); return; }
     S.errors = {};
 
@@ -884,7 +885,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
       <!-- Champ nom (obligatoire) -->
       <div class="frow">
         <label>Nom de la course <span style="color:#e24b4a">*</span></label>
-        <input type="text" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/>
+        <input type="text" maxlength="30" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value" placeholder="Ex: Triathlon de Paris"/>
+        <span style="font-size:11px;color:${c.titre.length>25?'#e24b4a':'#aaa'};float:right">${c.titre.length}/30</span>
         ${S.errors && S.errors.titre ? `<span class="error-msg">${S.errors.titre}</span>` : ''}
       </div>
       <!-- Date et lieu sur 2 colonnes -->
