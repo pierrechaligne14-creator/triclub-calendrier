@@ -885,7 +885,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
       <!-- Champ nom (obligatoire) -->
       <div class="frow">
         <label>Nom de la course <span style="color:#e24b4a">*</span></label>
-        <input type="text" maxlength="25" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value;document.querySelector('.titre-count').textContent=this.value.length+'/30';document.querySelector('.titre-count').style.color=this.value.length>25?'#e24b4a':'#aaa'" placeholder="Ex: Triathlon de Paris"/>
+        <input type="text" maxlength="25" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value;document.querySelector('.titre-count').textContent=this.value.length+'/25';document.querySelector('.titre-count').style.color=this.value.length>20?'#e24b4a':'#aaa'" placeholder="Ex: Triathlon de Paris"/>
         <span class="titre-count" style="font-size:11px;color:${c.titre.length>20?'#e24b4a':'#aaa'};float:right">${c.titre.length}/25</span>
         ${S.errors && S.errors.titre ? `<span class="error-msg">${S.errors.titre}</span>` : ''}
       </div>
