@@ -11,7 +11,8 @@ module.exports = async function handler(req, res) {
   }).select('id').single();
 
   if (error) return res.status(500).json({ error: error.message });
-
+  // Suppression immédiate
+  await db.from('courses').delete().eq('id', data.id);
 
   res.status(200).json({ ok: true, pinged: new Date().toISOString() });
 };
