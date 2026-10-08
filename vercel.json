@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "crons": [{ 
     "path": "/api/ping.js",
     "schedule": "0 4,23 * * *"
