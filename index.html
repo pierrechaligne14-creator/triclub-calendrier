@@ -282,6 +282,37 @@
     body.dark .sport-badge { filter: brightness(1.4); }
     body.dark .det-fmt-lbl { filter: brightness(1.6); }
     body.dark .credit{ color: #404042;}
+
+    
+    /* =============================================
+   AIDE / GUIDE UTILISATEUR (bouton ? + modale)
+    ============================================= */
+    /* Bouton rond "?" : même style que le bouton mode sombre, placé juste au-dessus */
+    .help-btn { position: fixed; bottom: 4.5rem; right: 1.5rem; background: var(--brand-primary); color: #fff; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 50; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+    .help-btn:hover { background: var(--brand-primary-dark); }
+
+    /* Modale un peu plus large que les autres */
+    .modal.help-modal { max-width: 560px; }
+    .help-intro { font-size: 13px; color: #666; line-height: 1.6; margin-bottom: 1rem; }
+  
+    /* Rubriques repliables */
+    .help-sec { border: 1px solid #e5e5e0; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+    .help-sec summary { padding: 10px 14px; font-size: 14px; font-weight: 600; cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; }
+    .help-sec summary::-webkit-details-marker { display: none; }  /* cache la flèche par défaut (Safari) */
+    .help-sec summary::after { content: '+'; margin-left: auto; color: var(--brand-primary); font-size: 18px; }
+    .help-sec[open] summary::after { content: '–'; }
+    .help-sec[open] summary { background: var(--brand-primary-bg); color: var(--brand-primary-text); }
+    .help-body { padding: 10px 14px 12px; font-size: 13px; line-height: 1.65; color: #444; }
+    .help-body ul { padding-left: 18px; }
+    .help-body li { margin-bottom: 5px; }
+    .help-tip { background: #f5f5f3; border-radius: 8px; padding: 8px 10px; margin-top: 8px; font-size: 12px; }
+    
+    /* Mode sombre */
+    body.dark .help-intro { color: #8e8e93; }
+    body.dark .help-sec { border-color: #48484a; }
+    body.dark .help-sec[open] summary { background: #3a3a3c; color: #e8e8e8; }
+    body.dark .help-body { color: #c7c7cc; }
+    body.dark .help-tip { background: #3a3a3c; }
     /* Transition douce entre les vues */
     .view-content {
       animation: fadeIn 0.2s ease;
@@ -522,6 +553,120 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     S.editing = null;
     S.editMode = false;
     render();
+  }
+    /* =============================================
+     GUIDE UTILISATEUR (modale d'aide)
+  ============================================= */
+
+  // Ouvre la modale d'aide (réutilise le système S.view comme les autres modales)
+  function openHelp() {
+    S.view = 'help';
+    render();
+  }
+
+  // Fermeture avec la touche Échap (confort sur ordinateur)
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && S.view === 'help') closeModal();
+  });
+
+  // Construit le HTML de la modale d'aide
+  // Pour modifier un texte : change-le simplement ci-dessous
+  function renderHelpModal() {
+    return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal help-modal">
+      <div class="mhdr">
+        <h2>❓ Comment ça marche ?</h2>
+        <button class="mcls" onclick="closeModal()">&#215;</button>
+      </div>
+
+      <p class="help-intro">
+        Le calendrier du club te permet de voir les courses de la saison, de t'y inscrire et de savoir qui y va.
+        Pas de compte à créer, ça marche directement sur mobile et ordinateur. Clique sur une rubrique pour la déplier 👇
+      </p>
+
+      <!-- Rubrique 1 : s'inscrire (la plus utile, ouverte par défaut) -->
+      <details class="help-sec" open>
+        <summary>🏁 Je m'inscris à une course</summary>
+        <div class="help-body"><ul>
+          <li>Clique sur la course (calendrier ou liste) pour ouvrir sa fiche.</li>
+          <li>Écris ton <strong>Prénom Nom</strong>, puis choisis ton ou tes formats (un ✓ apparaît).</li>
+          <li>Clique sur <strong>+ Inscrire</strong>. C'est fait !</li>
+          <li>Pour te désinscrire, clique sur le <strong>×</strong> à côté de ton nom.</li>
+        </ul>
+        <div class="help-tip">💡 Mets bien ton prénom <em>et</em> ton nom : sans nom de famille, personne ne saura qui tu es.</div>
+        </div>
+      </details>
+
+      <!-- Rubrique 2 : objectif principal -->
+      <details class="help-sec">
+        <summary>⭐ Mon objectif principal</summary>
+        <div class="help-body">
+          Lors de ton inscription, coche <strong>« Ceci est mon objectif principal »</strong> si c'est la course la plus importante de ta saison.
+          Ton nom apparaît alors en rose dans les fiches et dans le message du coach.
+          <div class="help-tip">💡 Une seule course par saison, pour que ça garde du sens.</div>
+        </div>
+      </details>
+
+      <!-- Rubrique 3 : vue calendrier -->
+      <details class="help-sec">
+        <summary>📅 Utiliser le calendrier</summary>
+        <div class="help-body"><ul>
+          <li>Chaque course est un pastille colorée selon son sport, avec le nombre d'inscrits entre parenthèses.</li>
+          <li><strong>Changer de mois :</strong> flèches ← →, ou glisse le doigt à gauche/droite sur mobile.</li>
+          <li><strong>Voir une course :</strong> clique sur sa pastille.</li>
+          <li><strong>Filtrer par sport :</strong> clique sur un ou plusieurs sports dans la légende en bas (re-clique pour retirer).</li>
+        </ul></div>
+      </details>
+
+      <!-- Rubrique 4 : vue liste -->
+      <details class="help-sec">
+        <summary>📋 Utiliser la liste</summary>
+        <div class="help-body"><ul>
+          <li>Bouton <strong>Liste</strong> en haut à droite, avec deux onglets : <strong>À venir</strong> et <strong>Historique</strong> (courses passées de l'année).</li>
+          <li>Clique sur une ligne pour voir les participants, les liens et les boutons d'action.</li>
+          <li><strong>Filtres</strong> Mois, Sport, Format : choisis la valeur vide pour tout réafficher.</li>
+          <li><strong>Recherche :</strong> tape un nom de course, une ville ou un prénom.</li>
+          <li>Le bouton <strong>× Réinitialiser</strong> efface tous les filtres d'un coup.</li>
+        </ul></div>
+      </details>
+
+      <!-- Rubrique 5 : créer / modifier / supprimer -->
+      <details class="help-sec">
+        <summary>➕ Ajouter ou modifier une course</summary>
+        <div class="help-body"><ul>
+          <li><strong>Créer :</strong> clique sur une case vide du calendrier ou sur <strong>+ Nouvelle course</strong>.</li>
+          <li>Renseigne le nom (30 caractères max), la date, la ville et le sport.</li>
+          <li><strong>Triathlon, Duathlon, Aquathlon, Swimrun :</strong> coche les formats XS / S / M / L / XL.</li>
+          <li><strong>Autres sports :</strong> ajoute autant de distances que nécessaire (km, et D+ si tu veux).</li>
+          <li>Commentaire, site web et WhatsApp sont facultatifs.</li>
+          <li>Coche <strong>« M'inscrire à cette course »</strong> pour t'inscrire en même temps.</li>
+          <li><strong>Modifier :</strong> ouvre la fiche puis <strong>✎ Modifier</strong> (les inscrits sont conservés).</li>
+          <li><strong>Supprimer :</strong> bouton en bas de la fiche. ⚠️ Cela supprime aussi tous les inscrits.</li>
+        </ul>
+        <div class="help-tip">💡 Tout le monde peut modifier le calendrier : c'est un outil partagé, on en prend soin !</div>
+        </div>
+      </details>
+
+      <!-- Rubrique 6 : message coach -->
+      <details class="help-sec">
+        <summary>💬 Message pour le coach</summary>
+        <div class="help-body">
+          En bas de la vue Liste, le bouton <strong>Message coach</strong> prépare automatiquement un message WhatsApp
+          avec les courses de la semaine et leurs inscrits.
+        </div>
+      </details>
+
+      <!-- Rubrique 7 : astuces -->
+      <details class="help-sec">
+        <summary>✨ Astuces</summary>
+        <div class="help-body"><ul>
+          <li>🌙 <strong>Mode sombre :</strong> bouton en bas à droite, ton choix est mémorisé par ton navigateur.</li>
+          <li>📱 <strong>Sur mobile :</strong> glisse sur le calendrier pour changer de mois.</li>
+          <li>🧹 <strong>Nettoyage :</strong> le bouton en bas de la liste supprime les courses de plus de deux ans.</li>
+        </ul></div>
+      </details>
+
+      <button class="btn-pri" style="width:100%;margin-top:10px" onclick="closeModal()">J'ai compris</button>
+    </div></div>`;
   }
 
   /* =============================================
@@ -1143,6 +1288,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
   <button class="dark-toggle" onclick="toggleDarkMode()" title="Mode sombre">
     ${document.body.classList.contains('dark') ? '☀️' : '🌙'}
   </button>
+   <!-- Bouton d'aide "?" : ouvre le guide utilisateur -->
+  <button class="help-btn" onclick="openHelp()" title="Guide d'utilisation">?</button>
 
       <!-- Message de présentation et instructions -->
       <p style="font-size:12px;color:#888;line-height:1.6;padding:4px 0 4px;border-bottom:1px solid #e5e5e0;margin-bottom:1rem">
@@ -1178,6 +1325,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
       <!-- Modales (affichées par-dessus le contenu) -->
       ${S.view === 'detail' ? renderDetailModal() : ''}
       ${S.view === 'form' ? renderFormModal() : ''}
+      ${S.view === 'help' ? renderHelpModal() : ''}
     `;
 
     // Synchronise les valeurs des selects après chaque render (évite la perte de valeur)
