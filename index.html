@@ -394,7 +394,22 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
   /* =============================================
      UTILITAIRES
   ============================================= */
+    // Neutralise les caractères dangereux avant affichage dans la page
+  function esc(s) {
+    return String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
 
+  // N'accepte que les liens qui commencent par http:// ou https://
+  function safeUrl(u) {
+    const v = String(u || '').trim();
+    return /^https?:\/\//i.test(v) ? v : '';
+  }
+
+  // N'accepte que les formats « propres » (XS, 10km / D+200m...)
+  function safeFmt(f) {
+    return /^[A-Za-z0-9 \/+.,-]{1,40}$/.test(String(f));
+  }
+  
   // Retourne l'objet sport par son id
   function sp(id) { return SP.find(s => s.id === id) || SP[0]; }
 
@@ -495,7 +510,9 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     // Associe les participants à chaque course
     S.courses = courses.map(c => ({
       ...c,
-      formats: c.formats || [],
+      site: safeUrl(c.site),                  
+      wa: safeUrl(c.wa),  
+      formats: (c.formats || []).filter(safeFmt),
       participants: (ants || [])
         .filter(p => p.course_id === c.id)
         .map(p => ({ ...p, fmts: p.fmts || [], objectif: p.objectif || false }))
@@ -849,7 +866,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         const fmtCount = {};
         c.participants.forEach(p => p.fmts.forEach(f => { fmtCount[f] = (fmtCount[f] || 0) + 1; }));
         const nb = c.participants.length;
-        return `<span class="pill" style="background:${s.bg};color:${s.c};white-space:normal;line-height:1.3;padding:3px 6px;font-size:11px" onclick="event.stopPropagation();openDetail(${c.id})">${c.titre}${nb ? ` (${nb})` : ''}</span>`;
+        return `<span class="pill" style="background:${s.bg};color:${s.c};white-space:normal;line-height:1.3;padding:3px 6px;font-size:11px" onclick="event.stopPropagation();openDetail(${c.id})">${esc(c.titre)}${nb ? ` (${nb})` : ''}</span>`;
       }).join('');
       return `<div class="dc${!mine ? ' om' : ''}${isT ? ' td' : ''}" onclick="openAdd('${ds}')"><div class="dn">${d.getDate()}</div>${pills}</div>`;
     }).join('');
@@ -870,8 +887,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
 
     // Liens externes
     const links = [
-      c.site ? `<a class="lnk" href="${c.site}" target="_blank">🌐 Site web</a>` : '',
-      c.wa ? `<a class="lnk-wa" href="${c.wa}" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` : '',
+      c.site ? `<a class="lnk" href="${esc(c.site)}" target="_blank" rel="noopener noreferrer">🌐 Site web</a>` : '',
+      c.wa ? `<a class="lnk-wa" href="${esc(c.wa)}" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` : '',
     ].join('');
 
     // Groupement des participants par format (une ligne BDD = un participant + un format)
@@ -897,7 +914,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           ${parts.map(p => `
             <div style="display:flex;align-items:center;gap:8px">
               <!-- Nom en rose si objectif principal -->
-              <span style="font-size:13px;${p.objectif ? 'color:${BRAND.primary};font-weight:500;' : ''}">${p.pseudo}</span>
+              <span style="font-size:13px;${p.objectif ? 'color:${BRAND.primary};font-weight:500;' : ''}">${esc(p.pseudo)}</span>
               <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
             </div>`).join('')}
         </div>
@@ -920,16 +937,16 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     return `<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal">
       <div class="mhdr">
         <span class="sport-badge" style="background:${s.bg};color:${s.c};flex-shrink:0">${s.l}</span>
-        <h2>${c.titre}</h2>
+        <h2>${esc(c.titre)}</h2>
         <button class="mcls" onclick="closeModal()">&#215;</button>
       </div>
       <!-- Infos principales : date, lieu, formats -->
       <div class="sec">
-        <div style="font-size:13px;color:#666;margin-bottom:6px">${dl} &nbsp;·&nbsp; ${c.lieu}</div>
+        <div style="font-size:13px;color:#666;margin-bottom:6px">${dl} &nbsp;·&nbsp; ${esc(c.lieu)}</div>
         <div>${fmtTags || '<span style="font-size:13px;color:#aaa">Aucun format renseigné</span>'}</div>
       </div>
       <!-- Commentaire si renseigné -->
-      ${c.comment ? `<div class="sec"><div class="cmmt">${c.comment}</div></div>` : ''}
+      ${c.comment ? `<div class="sec"><div class="cmmt">${esc(c.comment)}</div></div>` : ''}
       <!-- Liens externes si renseignés -->
       ${links ? `<div class="sec"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">${links}</div></div>` : ''}
       <!-- Section participants -->
@@ -942,7 +959,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         <!-- Formulaire d'inscription -->
         <div class="add-box">
           <div class="add-lbl">Rejoindre cette course</div>
-          <input type="text" class="${S.partErrors && S.partErrors.pseudo ? 'field-error' : ''}" placeholder="Ton Nom" value="${S.newPseudo}" oninput="S.newPseudo=this.value;document.querySelector('.btn-join').disabled=!this.value.trim()||S.newFmts.length===0"/>
+          <input type="text" class="${S.partErrors && S.partErrors.pseudo ? 'field-error' : ''}" placeholder="Ton Nom" value="${esc(S.newPseudo)}" oninput="S.newPseudo=this.value;document.querySelector('.btn-join').disabled=!this.value.trim()||S.newFmts.length===0"/>
           ${S.partErrors && S.partErrors.pseudo ? `<span class="error-msg">${S.partErrors.pseudo}</span>` : ''}
           ${c.formats.length
             ? `<p class="fmt-hint">Sélectionne un ou plusieurs formats</p>
@@ -1008,7 +1025,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           M'inscrire à cette course
         </label>
         ${S.createInscription ? `
-          <input type="text" placeholder="Ton pseudo *" value="${S.createPseudo}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
+          <input type="text" placeholder="Ton pseudo *" value="${esc(S.createPseudo)}" oninput="S.createPseudo=this.value" style="width:100%;border:1px solid #e5e5e0;border-radius:8px;padding:7px 10px;font-size:14px;font-family:inherit;background:#fff;color:#1a1a1a;margin-bottom:8px"/>
           <p style="font-size:11px;color:#aaa;margin-bottom:6px">Sélectionne tes formats</p>
           <div class="fmt-row">
             ${c.formats.map(f => `<button class="fb${S.createFmts.includes(f) ? ' on' : ''}" onclick="S.createFmts.includes('${f.replace(/'/g, "\\'")}') ? S.createFmts=S.createFmts.filter(x=>x!=='${f.replace(/'/g, "\\'")}') : S.createFmts.push('${f.replace(/'/g, "\\'")}');render()">${f}</button>`).join('')}
@@ -1026,11 +1043,11 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         <h2>${S.editMode ? 'Modifier la course' : 'Nouvelle course'}</h2>
         <button class="mcls" onclick="closeModal()">&#215;</button>
       </div>
-      ${S.editMode ? `<div class="edit-banner">Modification de "${c.titre}"</div>` : ''}
+      ${S.editMode ? `<div class="edit-banner">Modification de "${esc(c.titre)}"</div>` : ''}
       <!-- Champ nom (obligatoire) -->
       <div class="frow">
         <label>Nom de la course <span style="color:#e24b4a">*</span></label>
-        <input type="text" maxlength="25" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${c.titre}" oninput="S.editing.titre=this.value;document.querySelector('.titre-count').textContent=this.value.length+'/25';document.querySelector('.titre-count').style.color=this.value.length>20?'#e24b4a':'#aaa'" placeholder="Ex: Triathlon de Paris"/>
+        <input type="text" maxlength="25" class="${S.errors && S.errors.titre ? 'field-error' : ''}" value="${esc(c.titre)}" oninput="S.editing.titre=this.value;document.querySelector('.titre-count').textContent=this.value.length+'/25';document.querySelector('.titre-count').style.color=this.value.length>20?'#e24b4a':'#aaa'" placeholder="Ex: Triathlon de Paris"/>
         <span class="titre-count" style="font-size:11px;color:${c.titre.length>20?'#e24b4a':'#aaa'};float:right">${c.titre.length}/25</span>
         ${S.errors && S.errors.titre ? `<span class="error-msg">${S.errors.titre}</span>` : ''}
       </div>
@@ -1039,7 +1056,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         <div class="frow"><label>Date</label><input type="date" value="${c.date}" onchange="S.editing.date=this.value"/></div>
         <div class="frow">
           <label>Lieu <span style="color:#e24b4a">*</span></label>
-          <input type="text" class="${S.errors && S.errors.lieu ? 'field-error' : ''}" value="${c.lieu}" oninput="S.editing.lieu=this.value" placeholder="Ville"/>
+          <input type="text" class="${S.errors && S.errors.lieu ? 'field-error' : ''}" value="${esc(c.lieu)}" oninput="S.editing.lieu=this.value" placeholder="Ville"/>
           ${S.errors && S.errors.lieu ? `<span class="error-msg">${S.errors.lieu}</span>` : ''}
         </div>
       </div>
@@ -1052,9 +1069,9 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
       ${fmtField}
       ${S.errors && S.errors.formats ? `<span class="fmt-error">${S.errors.formats}</span>` : ''}
       <!-- Champs optionnels -->
-      <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${c.comment}</textarea></div>
-      <div class="frow"><label>Site internet</label><input type="url" value="${c.site}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
-      <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${c.wa}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
+      <div class="frow"><label>Commentaire</label><textarea oninput="S.editing.comment=this.value" placeholder="Infos pratiques, conseils, logistique...">${esc(c.comment)}</textarea></div>
+      <div class="frow"><label>Site internet</label><input type="url" value="${esc(c.site)}" oninput="S.editing.site=this.value" placeholder="https://..."/></div>
+      <div class="frow"><label>Lien WhatsApp</label><input type="url" value="${esc(c.wa)}" oninput="S.editing.wa=this.value" placeholder="https://chat.whatsapp.com/..."/></div>
       <!-- Inscription optionnelle à la création -->
       ${inscriptionBlock}
       <!-- Boutons d'action -->
@@ -1131,7 +1148,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
             <div class="det-plist" style="border-color:${s.mid}">
               ${parts.map(p=>`
                 <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:13px;${p.objectif?'color:${BRAND.primary};font-weight:500;':''}">${p.pseudo}</span>
+                <span style="font-size:13px;${p.objectif?'color:${BRAND.primary};font-weight:500;':''}">${esc(p.pseudo)}</span>
                 <button style="background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;line-height:1;padding:0;margin-left:auto" onclick="event.stopPropagation();removeParticipant(${p.id})">×</button>
                 </div>`).join('')}
             </div>
@@ -1140,12 +1157,12 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         // Détail déplié (participants + actions)
         const detail = expanded ? `
           <div class="ev-detail">
-            ${c.comment ? `<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${c.comment}</div>` : ''}
+            ${c.comment ? `<div style="font-size:12px;color:#888;font-style:italic;margin-bottom:10px">${esc(c.comment)}</div>` : ''}
             ${c.participants.length ? `<div class="det-parts">${partCols}</div>` : '<div style="font-size:12px;color:#aaa;margin-bottom:10px">Aucun inscrit.</div>'}
             ${c.site||c.wa?`
               <div class="det-actions" style="margin-bottom:6px">
-                ${c.site?`<a class="det-btn lnk" href="${c.site}" target="_blank">🌐 Site web     </a>`:''}
-                ${c.wa ? `<a class="lnk-wa" href="${c.wa}" target="_blank"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` :''}
+                ${c.site?`<a class="det-btn lnk" href="${esc(c.site)}" target="_blank" rel="noopener noreferrer">🌐 Site web     </a>`:''}
+                ${c.wa ? `<a class="lnk-wa" href="${esc(c.wa)}" target="_blank" rel="noopener noreferrer"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>WhatsApp</a>` :''}
               </div>`:''}
               <div class="det-actions">
                 <button class="det-btn" onclick="openEdit(${c.id})">✎ Modifier</button>
@@ -1159,8 +1176,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           <div class="ev-item" onclick="S.listExpanded[${c.id}]=!S.listExpanded[${c.id}];render()">
             <div class="sbar" style="background:${s.mid}"></div>
             <div class="ev-info">
-              <div class="ev-title">${c.titre} <span style="font-size:11px;font-weight:400;color:#aaa">· ${s.l}</span></div>
-              <div class="ev-sub">${c.lieu}${!sp(c.sport).multi && c.formats.length ? ` · ${c.formats.join(' / ')}` : ''}</div>
+              <div class="ev-title">${esc(c.titre)} <span style="font-size:11px;font-weight:400;color:#aaa">· ${s.l}</span></div>
+              <div class="ev-sub">${esc(c.lieu)}${!sp(c.sport).multi && c.formats.length ? ` · ${c.formats.join(' / ')}` : ''}</div>
             </div>
             <div class="ev-fmts">${fmtPills}</div>
             <div class="ev-nb">${c.participants.length}</div>
@@ -1199,7 +1216,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         </select>
         <div class="search-wrap">
           <svg class="srch-ico" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6.5" cy="6.5" r="4.5"/><line x1="10" y1="10" x2="14" y2="14"/></svg>
-          <input class="list-search" placeholder="Rechercher..." value="${S.filterSearch}" oninput="S.filterSearch=this.value;renderKeepFocus()"/>
+          <input class="list-search" placeholder="Rechercher..." value="${esc(S.filterSearch)}" oninput="S.filterSearch=this.value;renderKeepFocus()"/>
         </div>
         <!-- Bouton réinitialiser visible seulement si un filtre est actif -->
         ${S.filterMois || S.filterSport || S.filterFormat || S.filterSearch
