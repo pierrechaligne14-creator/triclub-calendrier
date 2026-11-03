@@ -1182,7 +1182,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
             <div class="det-plist" style="border-color:${s.mid}">
               ${parts.map(p=>`
                 <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:13px;${p.objectif?'color:${BRAND.primary};font-weight:500;`:''}">${esc(p.pseudo)}</span>
+                <span style="font-size:13px;${p.objectif?`color:${BRAND.primary};font-weight:500;`:''}">${esc(p.pseudo)}</span>
                 <button style="background:none;border:none;cursor:pointer;color:#ccc;font-size:13px;line-height:1;padding:0;margin-left:auto" onclick="event.stopPropagation();removeParticipant(${p.id})">×</button>
                 </div>`).join('')}
             </div>
