@@ -331,7 +331,7 @@
 </head>
 <body>
 
-<!-- Conteneur principal de l'application -->
+<!-- Conteneur  de l'application -->
 <div class="app" id="root"><div class="loading">Chargement...</div></div>
 <!-- Notification toast (messages de confirmation/erreur) -->
 <div class="toast" id="toast"></div>
@@ -355,7 +355,7 @@
 // CHARTE GRAPHIQUE — modifier ici pour adapter
 // =============================================
 const BRAND = {
-  primary:   '#C10076', // Couleur principale du club
+  primary:   '#C10076', // Couleur e du club
   primaryDark: '#9A005C', // Hover / version foncée
   primaryBg:  '#FCE4F3', // Fond clair (boutons sélectionnés)
   primaryText: '#7A0050', // Texte sur fond clair
@@ -935,7 +935,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
           ${parts.map(p => `
             <div style="display:flex;align-items:center;gap:8px">
               <!-- Nom en rose si objectif principal -->
-              <span style="font-size:13px;${p.objectif ? 'color:${BRAND.primary};font-weight:500;' : ''}">${esc(p.pseudo)}</span>
+              <span style="font-size:13px;${p.objectif ? color:${BRAND.primary};font-weight:500; : ''}">${esc(p.pseudo)}</span>
               <button style="margin-left:auto;background:none;border:none;cursor:pointer;color:#ccc;font-size:14px;line-height:1;padding:0" onclick="removeParticipant(${p.id})">×</button>
             </div>`).join('')}
         </div>
