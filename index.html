@@ -446,6 +446,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
      Toutes les données et l'état UI sont centralisés ici
   ============================================= */
   const today = new Date();
+  // Vue par défaut : liste sur mobile, calendrier sur ordinateur
+const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
   let S = {
     // Navigation calendrier
     year: today.getFullYear(),
@@ -499,6 +501,8 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
 
     //Onglet liste
     listTab: 'avenir', // 'avenir' | 'history'
+    // Vue liste mobile
+    vue: DEFAULT_VUE,
   };
 
   /* =============================================
@@ -884,7 +888,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
         const n = getCourses(d).filter(c => S.filterCalSport.length === 0 || S.filterCalSport.includes(c.sport)).length;
         if (n) colHasEvents[i % 7]++;
       });
-      const cols = colHasEvents.map((n, i) => i >= 5 ? 'minmax(0,1.6fr)' : (n ? 'minmax(0,1fr)' : 'minmax(0,0.5fr)')).join(' ');
+      const cols = colHasEvents.map((n, i) => i >= 5 ? 'minmax(0,1.3fr)' : (n ? 'minmax(0,1fr)' : 'minmax(0,0.7fr)')).join(' ');
       colsStyle = `grid-template-columns:${cols}`;
     }
     return `<div class="grid" style="${colsStyle}">${hdrs}${dcs}</div>`;
@@ -1311,7 +1315,7 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     el.innerHTML = `
       <!-- HEADER : titre + toggle vue + bouton nouvelle course -->
       <div class="hdr">
-        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="S.vue='cal';render()">
+        <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="S.vue=DEFAULT_VUE;render()">
           <img src="${BRAND.logo}" style="height:36px;width:auto;object-fit:contain"/>
           <div class="hdr-title"><em>${BRAND.clubName}</em>${BRAND.clubNameAccent} Calendrier</div>
         </div>
