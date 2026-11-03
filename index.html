@@ -748,6 +748,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
 
   // Supprime une course (les participants sont supprimés en cascade par Supabase)
   async function delCourse(id) {
+    if (!confirm('Supprimer cette course et toutes ses inscriptions ? Cette action est irréversible.')) return;
     const { error } = await db.from('courses').delete().eq('id', id);
     if (error) { showToast('Erreur lors de la suppression'); return; }
     showToast('Course supprimée');
@@ -820,6 +821,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
 
   // Désinscrit un participant (supprime sa ligne en BDD)
   async function removeParticipant(partId) {
+    if (!confirm('Retirer cette personne de la course ?')) return;
     const { error } = await db.from('participants').delete().eq('id', partId);
     if (error) { showToast('Erreur'); return; }
     showToast('Désinscription effectuée');
