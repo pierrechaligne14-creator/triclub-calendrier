@@ -1114,7 +1114,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
 
     // Construction des options des filtres dynamiquement depuis les données
     const moisDispo = [...new Set(S.courses
-      .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date.startsWith(today.getFullYear()))
+      .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date >= fmtDate(new Date(today.getFullYear() - 1, today.getMonth(), today.getDate())))
       .map(c => c.date.slice(0, 7)))].sort();
     const moisOpts = moisDispo.map(m => {
     const [y, mo] = m.split('-');
@@ -1126,7 +1126,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
 
     // Application des filtres
     let courses = [...S.courses]
-      .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date.startsWith(today.getFullYear()))
+      .filter(c => S.listTab === 'avenir' ? c.date >= todayStr : c.date < todayStr && c.date >= fmtDate(new Date(today.getFullYear() - 1, today.getMonth(), today.getDate())))
       .sort((a, b) => S.listTab === 'avenir' ? a.date.localeCompare(b.date) : b.date.localeCompare(a.date));
     if (S.filterMois) courses = courses.filter(c => c.date.startsWith(S.filterMois));
     if (S.filterSport) courses = courses.filter(c => c.sport === S.filterSport);
