@@ -710,7 +710,7 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
     if (c.titre.length > 25) errors.titre = 'Nom trop long (25 caractères max)';
     if (Object.keys(errors).length > 0) { S.errors = errors; render(); return; }
     S.errors = {};
-
+    let newCourseId = null;
     const payload = { titre: c.titre, date: c.date, lieu: c.lieu, sport: c.sport, formats: c.formats, site: c.site, wa: c.wa, comment: c.comment };
 
     if (c.id) {
@@ -720,7 +720,8 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
       showToast('Course modifiée ✓');
     } else {
       // Création d'une nouvelle course
-      const { error } = await db.from('courses').insert(payload);
+      const { data: created, error } = await db.from('courses').insert(payload).select().single();
+      newCourseId = created.id;
       if (error) { showToast('Erreur lors de la création'); return; }
       showToast('Course ajoutée ✓');
     }
@@ -728,10 +729,9 @@ const DEFAULT_VUE = window.innerWidth <= 580 ? 'list' : 'cal';
     closeModal();
 
     // Si l'utilisateur a coché "M'inscrire", on inscrit avec les formats choisis
-    const newCourse = await db.from('courses').select('*').order('created_at', { ascending: false }).limit(1).single();
-    if (S.createInscription && S.createPseudo.trim() && S.createFmts.length > 0 && newCourse.data) {
+    if (S.createInscription && S.createPseudo.trim() && S.createFmts.length > 0 && newCourseId) {
       await db.from('participants').insert({
-        course_id: newCourse.data.id,
+        course_id: newCourseId,
         pseudo: S.createPseudo.trim(),
         fmts: S.createFmts,
         objectif: S.createObjectif || false
