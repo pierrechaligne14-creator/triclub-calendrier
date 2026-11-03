@@ -195,6 +195,9 @@
     .ev-sub { font-size: 11px; color: #aaa; margin-top: 1px; }
     .ev-fmts { display: flex; gap: 3px; flex-shrink: 0; flex-wrap: wrap; max-width: 100px; justify-content: flex-end; }
     .ev-nb { font-size: 12px; color: #aaa; flex-shrink: 0; min-width: 24px; text-align: right; } /* Compteur inscrits */
+    .month-row { display: flex; align-items: center; gap: 12px; margin: 2rem 0 0.25rem; }
+    .month-line { flex: 1; height: 2px; background: var(--brand-primary); opacity: .35; }
+    .month-lbl { font-size: 12px; font-weight: 700; color: var(--brand-primary); letter-spacing: .08em; white-space: nowrap; }
 
     /* Détail dépliable dans la vue liste */
     .ev-detail { background: #f8f8f6; border-radius: 8px; padding: 12px; margin: 4px 0 8px; }
@@ -211,9 +214,11 @@
     ============================================= */
     @media(max-width: 580px) {
       .dc { min-height: 60px; padding: 3px; }
+      .dh { font-size: 10px; letter-spacing: 0; }
       .pill { font-size: 9px; }
       .r2 { grid-template-columns: 1fr; }
       .app { padding: 0 8px 3rem; }
+      
     }
     
   /* =============================================
@@ -870,7 +875,19 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
       }).join('');
       return `<div class="dc${!mine ? ' om' : ''}${isT ? ' td' : ''}" onclick="openAdd('${ds}')"><div class="dn">${d.getDate()}</div>${pills}</div>`;
     }).join('');
-    return `<div class="grid">${hdrs}${dcs}</div>`;
+    // Largeur des colonnes adaptée au contenu (mobile uniquement)
+    const narrow = window.innerWidth <= 580;
+    let colsStyle = '';
+    if (narrow) {
+      const colHasEvents = [0, 0, 0, 0, 0, 0, 0];
+      cells.forEach(({ d }, i) => {
+        const n = getCourses(d).filter(c => S.filterCalSport.length === 0 || S.filterCalSport.includes(c.sport)).length;
+        if (n) colHasEvents[i % 7]++;
+      });
+      const cols = colHasEvents.map((n, i) => i >= 5 ? 'minmax(0,1.6fr)' : (n ? 'minmax(0,1fr)' : 'minmax(0,0.5fr)')).join(' ');
+      colsStyle = `grid-template-columns:${cols}`;
+    }
+    return `<div class="grid" style="${colsStyle}">${hdrs}${dcs}</div>`;
   }
 
   /* =============================================
@@ -1124,7 +1141,17 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
     });
 
     // Génération des lignes
+    let lastMonth = '';
     const rows = Object.entries(byDate).map(([date, cs]) => {
+    // Bandeau de mois affiché uniquement au premier jour d'un nouveau mois
+      const monthKey = date.slice(0, 7);
+      let monthHeader = '';
+      if (monthKey !== lastMonth) {
+        lastMonth = monthKey;
+        const mLabel = new Date(date).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }).toUpperCase();
+        monthHeader = `<div class="month-row"><div class="month-line"></div><span class="month-lbl">${mLabel}</span><div class="month-line"></div></div>`;
+      }
+   
       const d = new Date(date);
       const dlbl = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' }).toUpperCase();
 
@@ -1185,9 +1212,10 @@ document.querySelector('link[rel="icon"]').href = BRAND.logo;
           ${detail}`;
       }).join('');
 
-      return `
-        <div class="date-row"><span class="date-lbl">${dlbl}</span><div class="date-line"></div></div>
-        ${evItems}`;
+     return `
+      ${monthHeader}
+      <div class="date-row"><span class="date-lbl">${dlbl}</span><div class="date-line"></div></div>
+      ${evItems}`;
     }).join('');
     const coachBtn = courses.length > 0 ? `
       <div style="text-align:center;margin-top:2rem;padding-top:1rem;border-top:1px solid #e5e5e0">
